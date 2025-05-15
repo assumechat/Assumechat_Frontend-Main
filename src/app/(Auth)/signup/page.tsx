@@ -1,31 +1,119 @@
 "use client"
-import { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Head from 'next/head';
 import { useState } from 'react';
 import Image from 'next/image';
-import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiUser } from 'react-icons/fi';
 import calculatePasswordStrength from '@/lib/PasswordStrength';
+import axios from 'axios';
+import { setUser } from '@/store/slices/userSlice';
+import { Input } from  '@/components/ui/input'; //Shadcn 
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
+
+
 export default function HeroSection() {
     const reviewsRef = useRef<HTMLDivElement[]>([]);
     const iconsRef = useRef<HTMLDivElement[]>([]);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [name, setName]= useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLogin, setIsLogin] = useState(false); // Add this state variable
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+    const [otp, setOtp ]= useState('');
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
+    const inputsRef = useRef<HTMLInputElement[]>([]);
+    const dispatch= useDispatch();
     const passwordStrength = calculatePasswordStrength(password);
+    const router=useRouter();
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Handle form submission
-        if (!isLogin && password !== confirmPassword) {
-            alert("Passwords don't match!");
-            return;
+
+    const handleChange = (index: number, value: string) => {
+    if (!/^[0-9]?$/.test(value)) return; // Only allow single digit
+
+    const updatedOtp = [...otpArray];
+    updatedOtp[index] = value;
+    setOtpArray(updatedOtp);
+    setOtp(updatedOtp.join("")); // Keep backend string ready
+
+    if (value && index < 5) {
+        inputsRef.current[index + 1]?.focus(); // Move to next input
         }
-        console.log({ email, password });
     };
+
+    const handleBackspace = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Backspace" && !otpArray[index] && index > 0) {
+        inputsRef.current[index - 1]?.focus(); // Go back
+     }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Check if login
+    if (isLogin) {
+        try {
+            const res = await axios.post("http://localhost:3001/Auth/login", { email, password });
+            localStorage.setItem("refreshToken", res.data.refreshToken);
+            dispatch(setUser({
+                accessToken: res.data.accessToken,
+                user: res.data.user,
+            }));
+            alert("Login Successful!");
+            router.push('/waitingRoom');
+        } catch (error: any) {
+            alert(error?.response?.data?.message || "Login failed");
+        }
+        return;
+    }
+
+    // If signup
+    if (!otpSent) {
+        // Send OTP
+        try {
+            const response = await axios.post("http://localhost:3001/Auth/request-otp", { email });
+            if (response.data.success) {
+                setOtpSent(true);
+                alert("OTP sent to your email.");
+            } else {
+                alert("Failed to send OTP.");
+            }
+        } catch (error) {
+            console.error("Error sending OTP:", error);
+            alert("Error sending OTP.");
+        }
+        return;
+    }
+
+    // Check password match
+    if (password !== confirmPassword) {
+        alert("Passwords don't match!");
+        return;
+    }
+    // Final Signup (after OTP sent)
+    try {
+        const res = await axios.post("http://localhost:3001/Auth/signup", {
+            name,
+            email,
+            password,
+            code: otp,
+        });
+
+        localStorage.setItem("refreshToken", res.data.refreshToken);
+        dispatch(setUser({
+            accessToken: res.data.accessToken,
+            user: res.data.user,
+        }));
+        alert("Signup Successful!");
+        router.push('/waitingRoom');
+    } catch (error: any) {
+        alert(error?.response?.data?.message || "Signup failed");
+    }
+    };
+
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -267,8 +355,26 @@ export default function HeroSection() {
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            {/* Email Input */}
+                            {/* Name Input */}
                             <div>
+                                <label  htmlFor="name" className="block text-sm font-medium text-black mb-1">
+                                    Name
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <FiUser color='#B30738' className="text-gray-400" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="block w-full pl-10 pr-3 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:border-transparent"
+                                        placeholder="student name"
+                                        required
+                                    />
+                                </div>
+                                 {/* Email Input */}
                                 <label htmlFor="email" className="block text-sm font-medium text-black mb-1">
                                     Email
                                 </label>
@@ -383,15 +489,36 @@ export default function HeroSection() {
                                     )}
                                 </div>
                             )}
-
-                            <button
-                                type="submit"
-                                className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50"
-                            >
-                                {isLogin ? 'Log In' : 'Sign Up'}
+                           {/*submit btn**/}
+                            <button type="submit" className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50">
+                                {isLogin ? "Login" : otpSent ? "Submit & Register" : "Send OTP"}
                             </button>
                         </form>
 
+                        {/* OTP Input show when OTP is sent) */}
+                        {otpSent && (
+                        <div>
+                             <label className="block text-sm font-medium text-black mb-1">Enter OTP</label>
+                                <div className="flex space-x-2">
+                                {otpArray.map((digit, index) => (
+                                 <Input
+                                 key={index}
+                                 ref={(el) => {
+                                 inputsRef.current[index] = el!;
+                                }}
+                                    type="text"
+                                    value={digit}
+                                    onChange={(e) => handleChange(index, e.target.value)}
+                                    onKeyDown={(e) => handleBackspace(index, e)}
+                                    maxLength={1}
+                                    className="w-10 h-10 text-center text-lg border border-gray-300 rounded-md focus:ring-[#B30738] focus:border-[#B30738]"
+                                    />
+                                ))}
+                            </div>
+                            {/* Hidden field (optional) */}
+                             <input type="hidden" name="otp" value={otp} />
+                        </div>
+                        )}
                         <div className="mt-14 text-right">
                             <p className="text-gray-600">
                                 {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}

@@ -25,7 +25,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     )
   }
 
-
   // otherwise wrap with Header + Footer
   return (
     <>

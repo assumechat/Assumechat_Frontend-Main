@@ -1,5 +1,4 @@
 'use client';
-
 import { usePathname } from 'next/navigation';
 import { Eye, PlayCircle, Gamepad2, University, MessageSquare, Film, Heart, Bookmark, History } from 'lucide-react';
 import Link from 'next/link';
