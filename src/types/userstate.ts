@@ -7,6 +7,7 @@ interface User {
 
 interface UserState {
     user: User | null;
+    accessToken: string | null;
     isAuthenticated: boolean;
 }
 
