@@ -5,6 +5,12 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import calculatePasswordStrength from '@/lib/PasswordStrength';
+import axios from 'axios';
+import { useDispatch, UseDispatch } from 'react-redux';
+import { setUser } from '@/store/slices/userSlice';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+
 export default function HeroSection() {
     const reviewsRef = useRef<HTMLDivElement[]>([]);
     const iconsRef = useRef<HTMLDivElement[]>([]);
@@ -14,17 +20,46 @@ export default function HeroSection() {
     const [isLogin, setIsLogin] = useState(true); // Add this state variable
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+    const router=useRouter();
     const passwordStrength = calculatePasswordStrength(password);
+    const dispatch = useDispatch();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async(e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission
         if (!isLogin && password !== confirmPassword) {
             alert("Passwords don't match!");
             return;
         }
-        console.log({ email, password });
+        //console.log({ email, password });
+        try
+        {
+            const apiUrl= isLogin ? 
+            process.env.NEXT_PUBLIC_SIGN_IN : process.env.NEXT_PUBLIC_SIGN_UP ;
+
+            if (!apiUrl) {
+                throw new Error("API URL is not defined in the environment variables");
+            }
+            const payload = isLogin
+            ? { email , password}
+            : { email , password};
+
+            const res = await axios.post(apiUrl , payload);
+            localStorage.setItem('refreshToken' , res.data.refreshToken);
+            dispatch(setUser({
+                accessToken : res.data.accessToken,
+                user: res.data.user,
+            }));
+
+            //alert('Success');
+            toast.success('Login successful');
+            //console.log(res.data);
+            router.push('/waitingRoom');
+        }
+        catch(error : any)
+        {
+            toast.error(error?.response?.data?.message || 'Something went wrong');
+            console.log(error);
+        }
     };
 
     useEffect(() => {
