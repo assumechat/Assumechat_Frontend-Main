@@ -153,7 +153,7 @@ const Header = () => {
                 >
                <DrawerCloseButton />
                <DrawerBody >
-                <div className="h-[80%] overflow-y-auto relative top-12 left-0 right-0 bg-white  bg-opacity-95 backdrop-blur-lg z-40 md:hidden border-b border-gray-200">
+                <div className="h-screen overflow-y-auto relative top-12 left-0 right-0 bg-white  bg-opacity-95 backdrop-blur-lg z-40 md:hidden border-b border-gray-200">
                     <nav className="flex flex-col py-4 px-1 space-y-4">
                         <div className="bg-white border border-[#B30738] rounded-lg py-3 px-1 mr-4  flex items-center justify-between">
                             <div className="flex items-center">
