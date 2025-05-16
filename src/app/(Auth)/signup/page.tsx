@@ -51,68 +51,72 @@ export default function HeroSection() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Check if login
+            e.preventDefault();
     if (isLogin) {
-        try {
-            const res = await axios.post("http://localhost:3001/Auth/login", { email, password });
-            localStorage.setItem("refreshToken", res.data.refreshToken);
-            dispatch(setUser({
-                accessToken: res.data.accessToken,
-                user: res.data.user,
-            }));
-            alert("Login Successful!");
-            router.push('/waitingRoom');
-        } catch (error: any) {
-            alert(error?.response?.data?.message || "Login failed");
-        }
-        return;
+     try {
+      const loginUrl = process.env.NEXT_PUBLIC_SIGN_IN;
+       if (!loginUrl) throw new Error("LOGIN URL not defined");
+        const res = await axios.post(loginUrl, { email, password });
+        localStorage.setItem("refreshToken", res.data.refreshToken);
+      dispatch(
+        setUser({
+          accessToken: res.data.accessToken,
+          user: res.data.user,
+        })
+      );
+      alert("Login Successful!");
+      router.push("/waitingRoom");
+    } catch (error: any) {
+      alert(error?.response?.data?.message || "Login failed");
     }
+    return;
+  }
 
-    // If signup
-    if (!otpSent) {
-        // Send OTP
-        try {
-            const response = await axios.post("http://localhost:3001/Auth/request-otp", { email });
-            if (response.data.success) {
-                setOtpSent(true);
-                alert("OTP sent to your email.");
-            } else {
-                alert("Failed to send OTP.");
-            }
-        } catch (error) {
-            console.error("Error sending OTP:", error);
-            alert("Error sending OTP.");
-        }
-        return;
+  // If signup
+  if (!otpSent) {
+    try {
+      const otpUrl = process.env.NEXT_PUBLIC_REQUEST_OTP;
+      if (!otpUrl) throw new Error("OTP REQUEST URL not defined");
+
+      const response = await axios.post(otpUrl, { email });
+      if (response.data.success) {
+        setOtpSent(true);
+        alert("OTP sent to your email.");
+      } else {
+        alert("Failed to send OTP.");
+      }
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      alert("Error sending OTP.");
     }
-
+    return;
+    }
     // Check password match
-    if (password !== confirmPassword) {
+     if (password !== confirmPassword) {
         alert("Passwords don't match!");
         return;
     }
     // Final Signup (after OTP sent)
     try {
-        const res = await axios.post("http://localhost:3001/Auth/signup", {
-            name,
-            email,
-            password,
-            code: otp,
-        });
+    const signupUrl = process.env.NEXT_PUBLIC_SIGN_UP;
+    if (!signupUrl) throw new Error("SIGNUP URL not defined");
+    const res = await axios.post(signupUrl, {
+      name,email,password,code: otp,
+    });
 
-        localStorage.setItem("refreshToken", res.data.refreshToken);
-        dispatch(setUser({
-            accessToken: res.data.accessToken,
-            user: res.data.user,
-        }));
-        alert("Signup Successful!");
-        router.push('/waitingRoom');
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+    dispatch(
+      setUser({
+        accessToken: res.data.accessToken,
+        user: res.data.user,
+      })
+    );
+    alert("Signup Successful!");
+    router.push("/waitingRoom");
     } catch (error: any) {
         alert(error?.response?.data?.message || "Signup failed");
     }
-    };
+   };
 
 
     useEffect(() => {

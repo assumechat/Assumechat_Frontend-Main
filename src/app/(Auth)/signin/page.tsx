@@ -25,7 +25,6 @@ export default function HeroSection() {
 
     const handleSubmit = async(e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission
         if (!isLogin && password !== confirmPassword) {
             alert("Passwords don't match!");
             return;
@@ -33,8 +32,12 @@ export default function HeroSection() {
         //console.log({ email, password });
         try
         {
-            const apiUrl= isLogin ? "http://localhost:3001/Auth/login" :"http://localhost:3001/Auth/signup" ;
+            const apiUrl= isLogin ? 
+            process.env.NEXT_PUBLIC_SIGN_IN : process.env.NEXT_PUBLIC_SIGN_UP ;
 
+            if (!apiUrl) {
+                throw new Error("API URL is not defined in the environment variables");
+            }
             const payload = isLogin
             ? { email , password}
             : { email , password};
