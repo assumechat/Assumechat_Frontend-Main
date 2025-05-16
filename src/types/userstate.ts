@@ -1,9 +1,11 @@
-
-interface User {
-    id: string;
-    name: string;
+type User = {
+    _id: string;
     email: string;
-}
+    name: string;
+    emailVerified: boolean;
+    refreshTokens: string;
+    userDataId: string;
+};
 
 interface UserState {
     user: User | null;
