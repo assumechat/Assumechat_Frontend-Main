@@ -37,7 +37,7 @@ export default function HeroSection() {
     const updatedOtp = [...otpArray];
     updatedOtp[index] = value;
     setOtpArray(updatedOtp);
-    setOtp(updatedOtp.join("")); // Keep backend string ready
+    setOtp(updatedOtp.join("")); 
 
     if (value && index < 5) {
         inputsRef.current[index + 1]?.focus(); // Move to next input
