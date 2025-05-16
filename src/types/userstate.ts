@@ -8,6 +8,7 @@ interface User {
 interface UserState {
     user: User | null;
     isAuthenticated: boolean;
+    accessToken: string | null;
 }
 
 export type {

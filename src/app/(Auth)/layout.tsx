@@ -1,5 +1,6 @@
 import { FooterSection } from "@/components/Footerforauth"
 import Header from "@/components/HeaderforAuth"
+import { Toaster } from "sonner";
 
 export default function Layout({
     children,
@@ -9,6 +10,7 @@ export default function Layout({
     return (
         <>
             <Header />
+            <Toaster richColors /> 
             {children}
             <FooterSection/>
         </>
