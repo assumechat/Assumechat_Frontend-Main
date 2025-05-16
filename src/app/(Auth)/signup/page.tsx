@@ -10,6 +10,7 @@ import { setUser } from '@/store/slices/userSlice';
 import { Input } from  '@/components/ui/input'; //Shadcn 
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import {toast} from 'sonner';
 
 
 export default function HeroSection() {
@@ -64,10 +65,11 @@ export default function HeroSection() {
           user: res.data.user,
         })
       );
-      alert("Login Successful!");
+      //alert("Login Successful!");
+      toast.success('Login Successful!');
       router.push("/waitingRoom");
     } catch (error: any) {
-      alert(error?.response?.data?.message || "Login failed");
+      toast.error(error?.response?.data?.message || 'Something went wrong');
     }
     return;
   }
@@ -81,19 +83,20 @@ export default function HeroSection() {
       const response = await axios.post(otpUrl, { email });
       if (response.data.success) {
         setOtpSent(true);
-        alert("OTP sent to your email.");
+        toast.success('OTP sent to your email.');
       } else {
-        alert("Failed to send OTP.");
+        toast.error('Failed to send OTP.');
+
       }
     } catch (error) {
       console.error("Error sending OTP:", error);
-      alert("Error sending OTP.");
+      toast.error('Error sending OTP');
     }
     return;
     }
     // Check password match
      if (password !== confirmPassword) {
-        alert("Passwords don't match!");
+        toast.error('password dost not match');
         return;
     }
     // Final Signup (after OTP sent)
@@ -111,10 +114,10 @@ export default function HeroSection() {
         user: res.data.user,
       })
     );
-    alert("Signup Successful!");
+    toast.success('Signup Successful!');
     router.push("/waitingRoom");
     } catch (error: any) {
-        alert(error?.response?.data?.message || "Signup failed");
+        toast.error(error?.response?.data?.message || "Signup failed");
     }
    };
 

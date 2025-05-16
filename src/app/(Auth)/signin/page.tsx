@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useDispatch, UseDispatch } from 'react-redux';
 import { setUser } from '@/store/slices/userSlice';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function HeroSection() {
     const reviewsRef = useRef<HTMLDivElement[]>([]);
@@ -49,13 +50,14 @@ export default function HeroSection() {
                 user: res.data.user,
             }));
 
-            alert('Success');
+            //alert('Success');
+            toast.success('Login successful');
             //console.log(res.data);
             router.push('/waitingRoom');
         }
         catch(error : any)
         {
-            alert(error?.response?.data?.message || 'Something went wrong');
+            toast.error(error?.response?.data?.message || 'Something went wrong');
             console.log(error);
         }
     };
