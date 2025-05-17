@@ -31,7 +31,7 @@ export default function InterestSelection() {
         const userId = accessToken ? (jwtDecode(accessToken) as CustomJwtPayload).userId : null;
         console.log(userId );
         try{
-            const response = await axios.post('http://localhost:3001/userProfile',{
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_HOST}/userProfile`,{
                 userId,
                 college: academicData.university,
                 yearOfStudy: parseInt(academicData.year),
