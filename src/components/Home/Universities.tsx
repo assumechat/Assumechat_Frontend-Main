@@ -3,12 +3,12 @@
 import Image from "next/image";
 
 const logos = [
-  { src: "/university logo/image 2.png", alt: "Santa Clara University" },
-  { src: "/university logo/image 3.png", alt: "Yale University" },
-  { src: "/university logo/image 4.png", alt: "University of Massachusetts" },
-  { src: "/university logo/image 5.png", alt: "Stanford University" },
-  { src: "/university logo/image 6.png", alt: "Brown University" },
-  { src: "/university logo/image 7.png", alt: "Columbia University" },
+  { src: "https://res.cloudinary.com/dipywb0lr/image/upload/v1747489121/image_3_nmsm3m.png", alt: "Santa Clara University" },
+  { src: "https://res.cloudinary.com/dipywb0lr/image/upload/v1747489121/image_2_gseqco.png", alt: "Yale University" },
+  { src: "https://res.cloudinary.com/dipywb0lr/image/upload/v1747489121/image_4_nfzjlj.png", alt: "University of Massachusetts" },
+  { src: "https://res.cloudinary.com/dipywb0lr/image/upload/v1747489121/image_6_ycetpk.png", alt: "Stanford University" },
+  { src: "https://res.cloudinary.com/dipywb0lr/image/upload/v1747489121/image_7_k5xmfp.png", alt: "Brown University" },
+  { src: "https://res.cloudinary.com/dipywb0lr/image/upload/v1747489120/image_5_rxkb4n.png", alt: "Columbia University" },
 ];
 
 export default function StepThree({
@@ -27,8 +27,8 @@ export default function StepThree({
             <Image
                 src={logo.src}
                 alt={logo.alt}
-                width={80}
-                height={80}
+                width={200}
+                height={200}
                 className="object-contain w-full h-full"
             />
             </div>

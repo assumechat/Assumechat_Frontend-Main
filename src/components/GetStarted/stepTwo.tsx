@@ -36,20 +36,18 @@ export default function StepTwo({
                             key={id}
                             type="button"
                             onClick={() => toggleInterest(id)}
-                            className={`p-3 sm:p-4 rounded-lg border-2 flex flex-col items-center transition-all h-40 justify-center ${
-                                selectedInterests.includes(id)
+                            className={`p-3 sm:p-4 rounded-lg border-2 flex flex-col items-center transition-all h-40 justify-center ${selectedInterests.includes(id)
                                     ? 'border-[#B30738] bg-[#B30738] bg-opacity-10'
                                     : 'border-gray-200 bg-white hover:border-gray-300'
-                            }`}
+                                }`}
                         >
                             <Icon
                                 size={40}
                                 color={selectedInterests.includes(id) ? '#ffffff' : '#B30738'}
                                 className="mb-2"
                             />
-                            <span className={`text-sm sm:text-base font-medium ${
-                                selectedInterests.includes(id) ? 'text-white' : 'text-gray-900'
-                            }`}>
+                            <span className={`text-sm sm:text-base font-medium ${selectedInterests.includes(id) ? 'text-white' : 'text-gray-900'
+                                }`}>
                                 {name}
                             </span>
                         </button>

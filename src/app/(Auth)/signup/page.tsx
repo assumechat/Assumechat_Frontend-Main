@@ -1,4 +1,19 @@
 "use client"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSeparator,
+    InputOTPSlot,
+} from "@/components/ui/input-otp"
+
 import React, { useRef, useEffect } from 'react';
 import Head from 'next/head';
 import { useState } from 'react';
@@ -7,10 +22,10 @@ import { FiMail, FiLock, FiEye, FiEyeOff, FiUser } from 'react-icons/fi';
 import calculatePasswordStrength from '@/lib/PasswordStrength';
 import axios from 'axios';
 import { setUser } from '@/store/slices/userSlice';
-import { Input } from  '@/components/ui/input'; //Shadcn 
+import { Input } from '@/components/ui/input'; //Shadcn 
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import {toast} from 'sonner';
+import { toast } from 'sonner';
 
 
 export default function HeroSection() {
@@ -18,108 +33,110 @@ export default function HeroSection() {
     const iconsRef = useRef<HTMLDivElement[]>([]);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [name, setName]= useState('');
+    const [name, setName] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isLogin, setIsLogin] = useState(false); // Add this state variable
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [otp, setOtp ]= useState('');
+    const [otp, setOtp] = useState('');
     const [otpSent, setOtpSent] = useState(false);
     const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
     const inputsRef = useRef<HTMLInputElement[]>([]);
-    const dispatch= useDispatch();
+    const dispatch = useDispatch();
     const passwordStrength = calculatePasswordStrength(password);
-    const router=useRouter();
+    const router = useRouter();
 
 
     const handleChange = (index: number, value: string) => {
-    if (!/^[0-9]?$/.test(value)) return; // Only allow single digit
+        if (!/^[0-9]?$/.test(value)) return; // Only allow single digit
 
-    const updatedOtp = [...otpArray];
-    updatedOtp[index] = value;
-    setOtpArray(updatedOtp);
-    setOtp(updatedOtp.join("")); 
+        const updatedOtp = [...otpArray];
+        updatedOtp[index] = value;
+        setOtpArray(updatedOtp);
+        setOtp(updatedOtp.join(""));
 
-    if (value && index < 5) {
-        inputsRef.current[index + 1]?.focus(); // Move to next input
+        if (value && index < 5) {
+            inputsRef.current[index + 1]?.focus(); // Move to next input
         }
     };
 
     const handleBackspace = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Backspace" && !otpArray[index] && index > 0) {
-        inputsRef.current[index - 1]?.focus(); // Go back
-     }
+            inputsRef.current[index - 1]?.focus(); // Go back
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-            e.preventDefault();
-    if (isLogin) {
-     try {
-      const loginUrl = process.env.NEXT_PUBLIC_SIGN_IN;
-       if (!loginUrl) throw new Error("LOGIN URL not defined");
-        const res = await axios.post(loginUrl, { email, password });
-        localStorage.setItem("refreshToken", res.data.refreshToken);
-      dispatch(
-        setUser({
-          accessToken: res.data.data.accessToken,
-          user: res.data.data.user,
-        })
-      );
-      //alert("Login Successful!");
-      toast.success('Login Successful!');
-      router.push("/waitingRoom");
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Something went wrong');
-    }
-    return;
-  }
+        e.preventDefault();
+        if (isLogin) {
+            try {
+                const loginUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/signup`
+                if (!loginUrl) throw new Error("LOGIN URL not defined");
+                const res = await axios.post(loginUrl, { email, password });
+                localStorage.setItem("refreshToken", res.data.refreshToken);
+                dispatch(
+                    setUser({
+                        accessToken: res.data.accessToken,
+                        user: res.data.user,
+                    })
+                );
+                //alert("Login Successful!");
+                toast.success('Login Successful!');
+                router.push("/waitingRoom");
+            } catch (error: any) {
+                toast.error(error?.response?.data?.message || 'Something went wrong');
+            }
+            return;
+        }
 
-  // If signup
-  if (!otpSent) {
-    try {
-      const otpUrl = process.env.NEXT_PUBLIC_REQUEST_OTP;
-      if (!otpUrl) throw new Error("OTP REQUEST URL not defined");
+        // If signup
+        if (!otpSent) {
+            try {
+                const otpUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/request-otp`
+                if (!otpUrl) throw new Error("OTP REQUEST URL not defined");
 
-      const response = await axios.post(otpUrl, { email });
-      if (response.data.success) {
-        setOtpSent(true);
-        toast.success('OTP sent to your email.');
-      } else {
-        toast.error('Failed to send OTP.');
+                const response = await axios.post(otpUrl, { email });
+                if (response.data.success) {
+                    setOtpSent(true);
+                    toast.success('OTP sent to your email.');
+                } else {
+                    toast.error('Failed to send OTP.');
 
-      }
-    } catch (error) {
-      console.error("Error sending OTP:", error);
-      toast.error('Error sending OTP');
-    }
-    return;
-    }
-    // Check password match
-     if (password !== confirmPassword) {
-        toast.error('password dost not match');
-        return;
-    }
-    // Final Signup (after OTP sent)
-    try {
-    const signupUrl = process.env.NEXT_PUBLIC_SIGN_UP;
-    if (!signupUrl) throw new Error("SIGNUP URL not defined");
-    const res = await axios.post(signupUrl, {
-      name,email,password,code: otp,
-    });
+                }
+            } catch (error) {
+                console.error("Error sending OTP:", error);
+                toast.error('Error sending OTP');
+            }
+            return;
+        }
+        // Check password match
+        if (password !== confirmPassword) {
+            toast.error('password dost not match');
+            return;
+        }
+        // Final Signup (after OTP sent)
+        try {
+            const signupUrl = process.env.NEXT_PUBLIC_SIGN_UP;
+            if (!signupUrl) throw new Error("SIGNUP URL not defined");
+            const res = await axios.post(signupUrl, {
+                name, email, password, code: otp,
+            });
 
-    localStorage.setItem("refreshToken", res.data.refreshToken);
-    dispatch(
-      setUser({
-        accessToken: res.data.data.accessToken,
-        user: res.data.data.user,
-      })
-    );
-    toast.success('Signup Successful!');
-    router.push("/waitingRoom");
-    } catch (error: any) {
-        toast.error(error?.response?.data?.message || "Signup failed");
-    }
-   };
+            localStorage.setItem("refreshToken", res.data.data.refreshToken);
+            dispatch(
+                setUser({
+                    accessToken: res.data.data.accessToken,
+                    user: res.data.data.user,
+                })
+            );
+            toast.success('Signup Successfully Redirecting To Get Started ', {
+                duration: 2000,
+            })
+            router.push("/getStarted");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Signup failed");
+        }
+    };
 
 
     useEffect(() => {
@@ -294,7 +311,6 @@ export default function HeroSection() {
                         </div>
 
                         {/* Floating Review Containers */}
-
                         <ReviewCard
                             index={3}
                             positionClass="top-20 md:top-45 w-40 md:right-2 right-2"
@@ -323,7 +339,7 @@ export default function HeroSection() {
                         {/* Floating Icons */}
                         <FloatingIcon
                             index={0}
-                            positionClass="bottem-10 md:bottom-50 right-10 transform -translate-x-1/2"
+                            positionClass="bottom-10 md:bottom-50 right-10 transform -translate-x-1/2"
                             icon="eye"
                         />
 
@@ -333,11 +349,10 @@ export default function HeroSection() {
                             icon="chat2"
                         />
                         <FloatingIcon
-                            index={1}
+                            index={2}
                             positionClass="top-53 left-1/2"
                             icon="heart"
                         />
-
 
                         {/* Main Content */}
                         <div className="relative pt-24 z-10 text-center px-4">
@@ -349,7 +364,6 @@ export default function HeroSection() {
                                 But We’re Already Guessing You’re Interesting.
                             </p>
                         </div>
-
                     </div>
                 </div>
                 <div className="w-full md:w-1/2 flex items-center justify-center p-8">
@@ -364,7 +378,7 @@ export default function HeroSection() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Name Input */}
                             <div>
-                                <label  htmlFor="name" className="block text-sm font-medium text-black mb-1">
+                                <label htmlFor="name" className="block text-sm font-medium text-black mb-1">
                                     Name
                                 </label>
                                 <div className="relative">
@@ -379,9 +393,10 @@ export default function HeroSection() {
                                         className="block w-full pl-10 pr-3 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:border-transparent"
                                         placeholder="student name"
                                         required
+                                        disabled={isLogin}
                                     />
                                 </div>
-                                 {/* Email Input */}
+                                {/* Email Input */}
                                 <label htmlFor="email" className="block text-sm font-medium text-black mb-1">
                                     Email
                                 </label>
@@ -424,6 +439,7 @@ export default function HeroSection() {
                                         type="button"
                                         className="absolute inset-y-0 right-0 pr-3 flex items-center"
                                         onClick={() => setShowPassword(!showPassword)}
+                                        tabIndex={-1}
                                     >
                                         {showPassword ? (
                                             <FiEyeOff className="text-gray-400 hover:text-gray-600" />
@@ -483,6 +499,7 @@ export default function HeroSection() {
                                             type="button"
                                             className="absolute inset-y-0 right-0 pr-3 flex items-center"
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            tabIndex={-1}
                                         >
                                             {showConfirmPassword ? (
                                                 <FiEyeOff className="text-gray-400 hover:text-gray-600" />
@@ -496,42 +513,24 @@ export default function HeroSection() {
                                     )}
                                 </div>
                             )}
-                           {/*submit btn**/}
+                            {/*submit btn*/}
                             <button type="submit" className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50">
                                 {isLogin ? "Login" : otpSent ? "Submit & Register" : "Send OTP"}
                             </button>
                         </form>
-
-                        {/* OTP Input show when OTP is sent) */}
-                        {otpSent && (
-                        <div>
-                             <label className="block text-sm font-medium text-black mb-1">Enter OTP</label>
-                                <div className="flex space-x-2">
-                                {otpArray.map((digit, index) => (
-                                 <Input
-                                 key={index}
-                                 ref={(el) => {
-                                 inputsRef.current[index] = el!;
-                                }}
-                                    type="text"
-                                    value={digit}
-                                    onChange={(e) => handleChange(index, e.target.value)}
-                                    onKeyDown={(e) => handleBackspace(index, e)}
-                                    maxLength={1}
-                                    className="w-10 h-10 text-center text-lg border border-gray-300 rounded-md focus:ring-[#B30738] focus:border-[#B30738]"
-                                    />
-                                ))}
-                            </div>
-                            {/* Hidden field (optional) */}
-                             <input type="hidden" name="otp" value={otp} />
-                        </div>
-                        )}
                         <div className="mt-14 text-right">
                             <p className="text-gray-600">
                                 {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
                                 <a
-                                    href={isLogin ? '/signup' : '/signin'}
+                                    href="#"
                                     className="text-[#B30738] hover:underline font-medium"
+                                    onClick={e => {
+                                        e.preventDefault();
+                                        setIsLogin(!isLogin);
+                                        setOtpSent(false);
+                                        setOtpArray(["", "", "", "", "", ""]);
+                                        setOtp('');
+                                    }}
                                 >
                                     {isLogin ? 'Sign Up' : 'Sign In'}
                                 </a>
@@ -540,6 +539,42 @@ export default function HeroSection() {
                     </div>
                 </div>
             </div>
+            {/* OTP Input show when OTP is sent) */}
+            {otpSent && (
+                <Dialog open={otpSent} onOpenChange={open => { if (!open) setOtpSent(false); }}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Enter OTP</DialogTitle>
+                            <DialogDescription>
+                                Please enter the 6-digit OTP sent to your email.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex space-x-2 justify-center my-4">
+                            {otpArray.map((digit, index) => (
+                                <Input
+                                    key={index}
+                                    ref={(el) => {
+                                        inputsRef.current[index] = el!;
+                                    }}
+                                    type="text"
+                                    value={digit}
+                                    onChange={(e) => handleChange(index, e.target.value)}
+                                    onKeyDown={(e) => handleBackspace(index, e)}
+                                    maxLength={1}
+                                    className="w-10 h-10 text-center text-lg border border-gray-300 rounded-md focus:ring-[#B30738] focus:border-[#B30738]"
+                                    autoFocus={index === 0}
+                                />
+                            ))}
+                        </div>
+                        <button
+                            className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50"
+                            onClick={handleSubmit}
+                        >
+                            Submit & Register
+                        </button>
+                    </DialogContent>
+                </Dialog>
+            )}
         </>
     );
 }

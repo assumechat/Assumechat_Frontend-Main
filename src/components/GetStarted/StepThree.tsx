@@ -36,15 +36,13 @@ export default function StepThree({
                             <button
                                 type="button"
                                 onClick={() => handleSelect(option.id)}
-                                className={`flex-1 p-4 rounded-lg border-2 transition-all w-full text-left ${
-                                    selectedOption === option.id
-                                        ? 'border-[#B30738] bg-[#B30738] text-white'
-                                        : 'border-gray-200 hover:border-gray-300 bg-white'
-                                }`}
+                                className={`flex-1 p-4 rounded-lg border-2 transition-all w-full text-left ${selectedOption === option.id
+                                    ? 'border-[#B30738] bg-[#B30738] text-white'
+                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                    }`}
                             >
-                                <span className={`font-medium ${
-                                    selectedOption === option.id ? 'text-white' : 'text-gray-700'
-                                }`}>
+                                <span className={`font-medium ${selectedOption === option.id ? 'text-white' : 'text-gray-700'
+                                    }`}>
                                     {option.label}
                                 </span>
                             </button>

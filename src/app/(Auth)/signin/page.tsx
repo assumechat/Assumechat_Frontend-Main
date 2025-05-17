@@ -20,45 +20,46 @@ export default function HeroSection() {
     const [isLogin, setIsLogin] = useState(true); // Add this state variable
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const router=useRouter();
+    const router = useRouter();
     const passwordStrength = calculatePasswordStrength(password);
     const dispatch = useDispatch();
 
-    const handleSubmit = async(e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!isLogin && password !== confirmPassword) {
             alert("Passwords don't match!");
             return;
         }
-        //console.log({ email, password });
-        try
-        {
-            const apiUrl= isLogin ? 
-            process.env.NEXT_PUBLIC_SIGN_IN : process.env.NEXT_PUBLIC_SIGN_UP ;
-
+        try {
+            const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/login`
             if (!apiUrl) {
                 throw new Error("API URL is not defined in the environment variables");
             }
-            const payload = isLogin
-            ? { email , password}
-            : { email , password};
-
-            const res = await axios.post(apiUrl , payload);
-            localStorage.setItem('refreshToken' , res.data.refreshToken);
+            const payload = { email, password };
+            const res = await axios.post(apiUrl, payload);
+            localStorage.setItem('refreshToken', res.data.data.refreshToken);
             dispatch(setUser({
-                accessToken : res.data.data.accessToken,
+                accessToken: res.data.data.accessToken,
                 user: res.data.data.user,
             }));
-
-            //alert('Success');
-            toast.success('Login successful');
+            toast.success('Login Successfully Redirecting To Waiting Room ', {
+                duration: 2000,
+            });
             //console.log(res.data);
             router.push('/waitingRoom');
         }
-        catch(error : any)
-        {
-            toast.error(error?.response?.data?.message || 'Something went wrong');
-            console.log(error);
+        catch (error: any) {
+            if (axios.isAxiosError(error)) {
+                toast.error(error.response?.data?.message || 'Something went wrong', {
+                    duration: 2000,
+                });
+                console.log(error);
+            } else {
+                toast.error('An unexpected error occurred', {
+                    duration: 2000,
+                });
+                console.log(error);
+            }
         }
     };
 
