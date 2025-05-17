@@ -1,10 +1,16 @@
 "use client"
 import { useRef, useEffect } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { stat } from 'fs';
+import { RootState } from '@/store';
 
 export default function HeroSection() {
   const reviewsRef = useRef<HTMLDivElement[]>([]);
   const iconsRef = useRef<HTMLDivElement[]>([]);
+  const router = useRouter();
+  const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -250,6 +256,7 @@ export default function HeroSection() {
           </p>
 
           <button
+            onClick={() => isAuthenticated ? router.push("/waitingRoom") : router.push("/signin")}
             className="bg-[#B30738] hover:bg-red-800 text-white font-bold py-3 px-20 rounded-lg text-lg transition-colors duration-300 mb-4 shadow-lg"
           >
             Start chatting
