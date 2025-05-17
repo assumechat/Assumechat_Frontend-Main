@@ -46,8 +46,8 @@ export default function HeroSection() {
             const res = await axios.post(apiUrl , payload);
             localStorage.setItem('refreshToken' , res.data.refreshToken);
             dispatch(setUser({
-                accessToken : res.data.accessToken,
-                user: res.data.user,
+                accessToken : res.data.data.accessToken,
+                user: res.data.data.user,
             }));
 
             //alert('Success');

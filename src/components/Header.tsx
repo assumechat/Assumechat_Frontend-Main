@@ -38,7 +38,7 @@ export default function Header() {
                         isAuthenticated ? (
                             [
                                 { label: 'Waiting Room', href: '/waitingRoom' },
-                                { label: 'Profile', href: '/profile' },
+                                { label: 'Profile', href: '/getStarted' },
                             ].map(({ label, href }) => (
                                 <Link
                                     key={href}
@@ -136,7 +136,7 @@ export default function Header() {
 
                                 [
                                     { label: 'Waiting Room', href: '/waitingRoom' },
-                                    { label: 'Profile', href: '/profile' },
+                                    { label: 'Profile', href: '/getStarted' },
                                 ].map(({ label, href }) => (
                                     <Link
                                         key={href}

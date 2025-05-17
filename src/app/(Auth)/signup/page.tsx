@@ -61,8 +61,8 @@ export default function HeroSection() {
         localStorage.setItem("refreshToken", res.data.refreshToken);
       dispatch(
         setUser({
-          accessToken: res.data.accessToken,
-          user: res.data.user,
+          accessToken: res.data.data.accessToken,
+          user: res.data.data.user,
         })
       );
       //alert("Login Successful!");
@@ -110,8 +110,8 @@ export default function HeroSection() {
     localStorage.setItem("refreshToken", res.data.refreshToken);
     dispatch(
       setUser({
-        accessToken: res.data.accessToken,
-        user: res.data.user,
+        accessToken: res.data.data.accessToken,
+        user: res.data.data.user,
       })
     );
     toast.success('Signup Successful!');

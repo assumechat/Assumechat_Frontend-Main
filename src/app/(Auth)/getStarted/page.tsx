@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import axios from 'axios';
 import {
     Code,
     Paintbrush,
@@ -9,12 +10,44 @@ import {
     Tv,
     BookOpen
 } from 'lucide-react';
-import Stepone from '@/components/GetStarted/StepOne';
+import StepOne from '@/components/GetStarted/StepOne';
 import StepTwo from '@/components/GetStarted/stepTwo';
+import StepThree from '@/components/GetStarted/StepThree';
+import {jwtDecode }from 'jwt-decode';
+import { useSelector } from 'react-redux';
+import { CustomJwtPayload } from '@/types/Jwt';
+import { RootState } from '@/store';
+import { toast } from 'sonner';
 
 export default function InterestSelection() {
     const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(1);
+    const [academicData, setAcademicData] = useState({
+    university: '', course: '', year: '', });
+
+    const accessToken =useSelector((state: RootState)=> state.user.accessToken);
+
+    const handleSubmit=async()=>{
+        const userId = accessToken ? (jwtDecode(accessToken) as CustomJwtPayload).userId : null;
+        console.log(userId );
+        try{
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_HOST}/userProfile`,{
+                userId,
+                college: academicData.university,
+                yearOfStudy: parseInt(academicData.year),
+                interests: selectedInterests,
+                connectionPreference:selectedOption
+            });
+           // console.log(userId );
+           // console.log("profile saved:", response.data);
+           toast.success("Profile saved successfully!");
+        }
+        catch(error){
+            //console.log("Failed to save profile:",error);
+            toast.error("Failed to save profile!");
+        }
+};
+
     const interests = [
         { id: 'tech', name: 'Technology', icon: Code },
         { id: 'creative', name: 'Creative', icon: Paintbrush },
@@ -32,6 +65,9 @@ export default function InterestSelection() {
         );
     };
 
+    const handleAcademicChange =(field: string , value: string)=> {
+        setAcademicData(prev=>({...prev , [field]: value}));
+    }
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
     const options = [
@@ -100,41 +136,69 @@ export default function InterestSelection() {
                 <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
                     <div className="w-full flex justify-center items-center flex-col text-center">
                         {
-                            step === 1 && <Stepone
+                            step==1 && (<StepOne
+                            academicData={academicData}
+                            handleAcademicChange={handleAcademicChange}
+                            />)
+                        }
+                        {
+                            step === 2 && <StepTwo
                                 interests={interests}
                                 selectedInterests={selectedInterests}
                                 toggleInterest={toggleInterest}
                             />
                         }
                         {
-                            step === 2 && <StepTwo
+                            step === 3 && <StepThree
                                 options={options}
                                 selectedOption={selectedOption}
                                 setSelectedOption={setSelectedOption}
                                 handleSelect={handleSelect}
+
                             />
                         }
 
                         {/* Action buttons */}
+                        {/* Action buttons */}
                         <div className="flex flex-col space-y-3 sm:space-y-4 max-w-md mx-auto">
-                            <button
-                                onClick={() => setStep(prav => prav + 1)}
-                                type="button"
-                                disabled={selectedInterests.length === 0}
-                                className={`w-60 py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium text-sm sm:text-base ${selectedInterests.length > 0
-                                    ? 'bg-[#B30738] text-white hover:bg-[#9a0630]'
-                                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                    } transition-colors`}
-                            >
-                                Continue
-                            </button>
-                            <button
-                                type="button"
-                                className="w-60 py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium text-sm sm:text-base text-[#B30738] hover:bg-gray-50 transition-colors"
-                            >
-                                Skip for now
-                            </button>
-                        </div>
+                       <div className="flex flex-col sm:flex-row gap-4">
+                        {/* Continue / Finish Button */}
+                         <button
+                            onClick={() => {
+                             if (step === 3) {
+                             handleSubmit();
+                            } else {
+                            setStep((prev) => prev + 1);
+                            }
+                         }}
+                         type="button"
+                        disabled={
+                         (step === 1 && (!academicData.university || !academicData.course || !academicData.year)) ||
+                            (step === 2 && selectedInterests.length === 0) ||
+                        (step === 3 && selectedOption === null)
+                        }
+                        className={`w-60 py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium text-sm sm:text-base transition-colors
+                        ${
+                          (step === 1 && academicData.university && academicData.course && academicData.year) ||
+                          (step === 2 && selectedInterests.length > 0) ||
+                          (step === 3 && selectedOption !== null)
+                          ? 'bg-[#B30738] text-white hover:bg-[#9a0630]'
+                           : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        }
+    `               }
+                    >
+                    {step < 3 ? 'Continue' : 'Finish'}
+                    </button>
+
+                    {/* Skip for Now Button */}
+                    <button
+                    type="button"
+                    className="w-60 py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium text-sm sm:text-base text-[#B30738] hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
+                    >
+                    Skip for now
+                    </button>
+                    </div>
+                    </div>
                     </div>
                 </div>
             </div>
