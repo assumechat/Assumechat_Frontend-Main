@@ -162,43 +162,43 @@ export default function InterestSelection() {
                         {/* Action buttons */}
                         <div className="flex flex-col space-y-3 sm:space-y-4 max-w-md mx-auto">
                        <div className="flex flex-col sm:flex-row gap-4">
-  {/* Continue / Finish Button */}
-  <button
-    onClick={() => {
-      if (step === 3) {
-        handleSubmit();
-      } else {
-        setStep((prev) => prev + 1);
-      }
-    }}
-    type="button"
-    disabled={
-      (step === 1 && (!academicData.university || !academicData.course || !academicData.year)) ||
-      (step === 2 && selectedInterests.length === 0) ||
-      (step === 3 && selectedOption === null)
-    }
-    className={`w-60 py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium text-sm sm:text-base transition-colors
-      ${
-        (step === 1 && academicData.university && academicData.course && academicData.year) ||
-        (step === 2 && selectedInterests.length > 0) ||
-        (step === 3 && selectedOption !== null)
-          ? 'bg-[#B30738] text-white hover:bg-[#9a0630]'
-          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-      }
-    `}
-  >
-    {step < 3 ? 'Continue' : 'Finish'}
-  </button>
+                        {/* Continue / Finish Button */}
+                         <button
+                            onClick={() => {
+                             if (step === 3) {
+                             handleSubmit();
+                            } else {
+                            setStep((prev) => prev + 1);
+                            }
+                         }}
+                         type="button"
+                        disabled={
+                         (step === 1 && (!academicData.university || !academicData.course || !academicData.year)) ||
+                            (step === 2 && selectedInterests.length === 0) ||
+                        (step === 3 && selectedOption === null)
+                        }
+                        className={`w-60 py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium text-sm sm:text-base transition-colors
+                        ${
+                          (step === 1 && academicData.university && academicData.course && academicData.year) ||
+                          (step === 2 && selectedInterests.length > 0) ||
+                          (step === 3 && selectedOption !== null)
+                          ? 'bg-[#B30738] text-white hover:bg-[#9a0630]'
+                           : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        }
+    `               }
+                    >
+                    {step < 3 ? 'Continue' : 'Finish'}
+                    </button>
 
-  {/* Skip for Now Button */}
-  <button
-    type="button"
-    className="w-60 py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium text-sm sm:text-base text-[#B30738] hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
-  >
-    Skip for now
-  </button>
-</div>
-          </div>
+                    {/* Skip for Now Button */}
+                    <button
+                    type="button"
+                    className="w-60 py-2 sm:py-3 px-4 sm:px-6 rounded-lg font-medium text-sm sm:text-base text-[#B30738] hover:bg-gray-100 transition-colors border border-transparent hover:border-gray-200"
+                    >
+                    Skip for now
+                    </button>
+                    </div>
+                    </div>
                     </div>
                 </div>
             </div>
