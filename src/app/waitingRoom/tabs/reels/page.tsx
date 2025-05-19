@@ -1,134 +1,39 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ArrowUp, ArrowDown, Heart, MessageSquare, Share2, MoreVertical } from 'lucide-react';
+import { Heart, MessageSquare, Share2, MoreVertical } from 'lucide-react';
 
 const ReelsSection = () => {
-    const [reels, setReels] = useState([
-        {
-            id: 1,
-            videoUrl: 'https://youtube.com/shorts/ECpjj_4lMH4?si=AtFciev1E0jJrqoS',
-            username: '@campus_explorer',
-            description: 'A day in the life of a computer science student #unilife',
-            likes: '1.2k',
-            comments: '243',
-        },
-        {
-            id: 2,
-            videoUrl: '/reel2.mp4',
-            username: '@uni_foodie',
-            description: 'Best spots to eat near campus on a budget 🍔 #studentlife',
-            likes: '3.4k',
-            comments: '512',
-        },
-        {
-            id: 3,
-            videoUrl: '/reel3.mp4',
-            username: '@study_with_me',
-            description: 'Late night study session vibes 📚 #exams',
-            likes: '5.7k',
-            comments: '892',
-        },
+    const [reels] = useState([
+        { id: 1, embedUrl: 'https://www.youtube.com/embed/ECpjj_4lMH4', username: '@campus_explorer', description: 'A day in the life of a CS student', likes: '1.2k', comments: '243' },
+        { id: 2, embedUrl: 'https://www.youtube.com/embed/Nl_TfPCH7rQ', username: '@uni_foodie', description: 'Campus eats on a budget', likes: '2.9k', comments: '350' },
+        { id: 3, embedUrl: 'https://www.youtube.com/embed/fR-G72zUy-k', username: '@study_with_me', description: 'Late-night studies', likes: '4.5k', comments: '784' },
+        { id: 4, embedUrl: 'https://www.youtube.com/embed/Ol96Yuq24Eo', username: '@dormlife', description: 'Dorm room organization', likes: '3.1k', comments: '289' },
+        { id: 5, embedUrl: 'https://www.youtube.com/embed/hK0WSc2GaQI', username: '@campus_style', description: 'Student fashion', likes: '2.7k', comments: '156' },
+        { id: 6, embedUrl: 'https://www.youtube.com/embed/_Ugg89GGVZo', username: '@fitness_uni', description: 'Quick workouts', likes: '4.3k', comments: '400' },
+        { id: 7, embedUrl: 'https://www.youtube.com/embed/PhzB6nfT2sA', username: '@uni_travel', description: 'Budget travel tips', likes: '5.2k', comments: '612' },
+        { id: 8, embedUrl: 'https://www.youtube.com/embed/jbyUQ25Ah68', username: '@productivity_hacks', description: 'Study productivity hacks', likes: '6.1k', comments: '734' },
+        { id: 9, embedUrl: 'https://www.youtube.com/embed/_EyMdoFE-jo', username: '@uni_social', description: 'Making friends', likes: '3.8k', comments: '481' },
+        { id: 10, embedUrl: 'https://www.youtube.com/embed/ZDezYdUpD7U', username: '@campus_comedy', description: 'Funny campus moments', likes: '7.9k', comments: '923' },
     ]);
 
-    const [currentReelIndex, setCurrentReelIndex] = useState(0);
-    const reelRef = useRef<HTMLDivElement>(null);
-
-    // Simulate loading more reels when reaching bottom
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting) {
-                    // Load more reels (simulated)
-                    setReels(prev => [
-                        ...prev,
-                        {
-                            id: prev.length + 1,
-                            videoUrl: `/reel${prev.length + 1}.mp4`,
-                            username: `@user_${prev.length + 1}`,
-                            description: `New campus reel #${prev.length + 1}`,
-                            likes: `${Math.floor(Math.random() * 10)}.${Math.floor(Math.random() * 9)}k`,
-                            comments: `${Math.floor(Math.random() * 1000)}`,
-                        }
-                    ]);
-                }
-            },
-            { threshold: 0.8 }
-        );
-
-        if (reelRef.current) {
-            observer.observe(reelRef.current);
-        }
-
-        return () => observer.disconnect();
-    }, [reels]);
-
-    const handleWheel = (e: React.WheelEvent) => {
-        if (e.deltaY > 0) {
-            // Scroll down
-            setCurrentReelIndex(prev => Math.min(prev + 1, reels.length - 1));
-        } else {
-            // Scroll up
-            setCurrentReelIndex(prev => Math.max(prev - 1, 0));
-        }
-    };
-
     return (
-        <div className="flex  mt-12 md:mt-28 justify-center w-full bg-white overflow-hidden">
-            <div
-                className="relative h-full px-12 w-full max-w-md flex flex-col snap-y snap-mandatory overflow-y-auto"
-                onWheel={handleWheel}
-            >
-                {reels.map((reel, index) => (
+        <div className="flex mt-12 md:mt-28 justify-center w-full bg-white overflow-hidden">
+            <div className="relative h-[85vh] px-4 w-full max-w-md overflow-y-auto snap-y snap-mandatory scrollbar-hide">
+                {reels.map((reel) => (
                     <div
                         key={reel.id}
-                        ref={index === reels.length - 1 ? reelRef : null}
-                        className={`h-[85vh]  bg-black w-full rounded-xl flex-shrink-0 snap-start relative ${index === currentReelIndex ? 'block' : 'hidden'}`}
+                        className="h-[85vh] w-max mb-4 rounded-xl snap-start relative overflow-hidden bg-black"
                     >
-                        {/* Video Player */}
-                        <video
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="h-full w-full object-cover"
-                        >
-                            <source src={reel.videoUrl} type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
-
-                        {/* Reel Info Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 text-white bg-gradient-to-t from-black/80 to-transparent">
-                            <div className="mb-4">
-                                <p className="font-semibold">{reel.username}</p>
-                                <p className="text-sm mt-1">{reel.description}</p>
-                            </div>
-                        </div>
-
-                        {/* Right Side Controls */}
-                        <div className="absolute right-4 bottom-20 flex flex-col items-center space-y-5">
-                            <div className="flex flex-col items-center">
-                                <button className="p-2 rounded-full bg-black/30 text-white">
-                                    <Heart size={24} />
-                                </button>
-                                <span className="text-xs mt-1 text-white">{reel.likes}</span>
-                            </div>
-
-                            <div className="flex flex-col items-center">
-                                <button className="p-2 rounded-full bg-black/30 text-white">
-                                    <MessageSquare size={24} />
-                                </button>
-                                <span className="text-xs mt-1 text-white">{reel.comments}</span>
-                            </div>
-
-                            <button className="p-2 rounded-full bg-black/30 text-white">
-                                <Share2 size={24} />
-                            </button>
-
-                            <button className="p-2 rounded-full bg-black/30 text-white">
-                                <MoreVertical size={24} />
-                            </button>
-                        </div>
+                        {/* YouTube Shorts iframe embed */}
+                        <iframe
+                            src={reel.embedUrl}
+                            title={`YouTube Shorts ${reel.id}`}
+                            className="w-full h-full"
+                            frameBorder="0"
+                            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                        ></iframe>
                     </div>
                 ))}
             </div>
