@@ -1,25 +1,3 @@
-// app/waitingRoom/layout.tsx
-'use client';
-
-import { ReactNode, useEffect } from 'react';
-import { useAppDispatch } from '@/store/hooks';
-import { initSockets, joinQueue, leaveQueue } from '@/store/slices/socketSlice';
-
-export default function WaitingRoomLayout({ children }: { children: ReactNode }) {
-    const dispatch = useAppDispatch();
-
-    useEffect(() => {
-        dispatch(initSockets());
-        dispatch(joinQueue());
-        return () => {
-            dispatch(leaveQueue());
-        };
-    }, [dispatch]);
-
-    return <>{children}</>;
-}
-
-/*
 'use client';
 
 import { useEffect } from 'react';
@@ -43,12 +21,14 @@ export default function WaitingRoomLayout({ children }: { children: React.ReactN
     useEffect(() => {
         if (matched) {
             // you can pass roomId & peer via query params or context
-            router.push(`/waitingRoom/tabs/assumer?roomId=${matched.roomId}&peer=${matched.peer}`);
+            router.push(`/waitingRoom/tabs/assumer`);
         }
     }, [matched, router]);
 
     return <>{children}</>;
 }
+/*
+
 
 
 
