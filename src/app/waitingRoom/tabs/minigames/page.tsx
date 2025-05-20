@@ -81,7 +81,7 @@ const MiniGamesSection = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {featuredGames.map((game) => (
                         <div key={game.id} className="border-1 border-black rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                            <Link href={`/games/${game.id}`}>
+                            <Link href={`/waitingRoom/tabs/minigames/games/${game.id}`}>
                                 <div className="relative h-48 w-full">
                                     <Image
                                         src={game.image}

@@ -22,7 +22,7 @@ import { FiMail, FiLock, FiEye, FiEyeOff, FiUser } from 'react-icons/fi';
 import calculatePasswordStrength from '@/lib/PasswordStrength';
 import axios from 'axios';
 import { setUser } from '@/store/slices/userSlice';
-import { Input } from '@/components/ui/input'; //Shadcn 
+import { Input } from '@/components/ui/input';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -116,7 +116,7 @@ export default function HeroSection() {
         }
         // Final Signup (after OTP sent)
         try {
-            const signupUrl = process.env.NEXT_PUBLIC_SIGN_UP;
+            const signupUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
             if (!signupUrl) throw new Error("SIGNUP URL not defined");
             const res = await axios.post(signupUrl, {
                 name, email, password, code: otp,
