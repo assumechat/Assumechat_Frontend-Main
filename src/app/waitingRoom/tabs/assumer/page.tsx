@@ -3,14 +3,22 @@
 import { useState, useRef, useEffect } from 'react';
 import { FiSend } from 'react-icons/fi';
 import Image from 'next/image';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { sendMessage } from '@/store/slices/socketSlice';
+import { getQueueSocket } from '@/Services/socketService';
+import { toast } from "sonner" // Install: npm i react-hot-toast
 
 const ChatSystem = () => {
-    const [messages, setMessages] = useState([
-        { id: 1, text: 'What are you studying?', sender: 'other', avatar: 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_qkwdzs.jpg' },
-        { id: 2, text: 'I think you might be a computer science student!', sender: 'me', avatar: 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_jmhhxy.png' },
-    ]);
+    const dispatch = useAppDispatch();
+    const messages = useAppSelector(state => state.socket.messages);
+    const chatConnected = useAppSelector(state => state.socket.chatConnected);
+    const matched = useAppSelector(state => state.socket.matched);
+    const { position, waiting, online } = useAppSelector(s => s.socket);
     const [inputValue, setInputValue] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // 1. Loader State: If not matched, we are "matching"
+    const isMatching = !matched;
 
     const suggestions = [
         'Assume something about me',
@@ -18,68 +26,70 @@ const ChatSystem = () => {
         "What's your first impression of me?"
     ];
 
-    const handleSend = () => {
-        if (inputValue.trim()) {
-            const newMessage = {
-                id: messages.length + 1,
-                text: inputValue,
-                sender: 'me',
-                avatar: 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_jmhhxy.png'
-            };
-            setMessages([...messages, newMessage]);
-            setInputValue('');
-
-            // Simulate response after 1 second
-            setTimeout(() => {
-                const response = {
-                    id: messages.length + 2,
-                    text: 'Interesting! Tell me more about that.',
-                    sender: 'other',
-                    avatar: 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_qkwdzs.jpg'
-                };
-                setMessages(prev => [...prev, response]);
-            }, 1000);
-        }
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
-    };
-
+    // 3. Scroll to bottom on new messages
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
+    // 4. Send a chat message
+    const handleSend = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        const text = inputValue.trim();
+        if (text && matched) {
+            dispatch(sendMessage(text));
+            setInputValue('');
+        }
+    };
+
+    // 5. Skip to next user
+    const handleSkip = () => {
+        if (!matched) return;
+        const queueSocket = getQueueSocket();
+        queueSocket.emit('skipUser', { roomId: matched.roomId });
+        toast.success('Skipped user, searching for a new match...');
+    };
+
+    // 6. Show loader while matching
+    if (isMatching) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full pt-24">
+                <svg className="animate-spin h-8 w-8 text-[#B30738] mb-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+                <p className="text-gray-600">Online users: {online}</p>
+                <p className="text-gray-600">Queue Position: {position}</p>
+                <p className="text-gray-800 font-medium mt-2">Matching you with someone...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="flex flex-col h-screen md:mt-32 mt-12">
-            {/* Scrollable Messages Container */}
+        <div className="flex flex-col h-screen md:mt-40 md:pt-40 border-2 border-red-600 mt-12">
+            {/* Messages Container */}
             <div className="flex-1 overflow-y-auto pb-32">
                 <div className="p-4 space-y-4">
-                    {messages.map((message) => (
+                    {messages.map((m, idx) => (
                         <div
-                            key={message.id}
-                            className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+                            key={m.timestamp}
+                            className={`flex ${m.peerId === matched.peer ? 'justify-end' : 'justify-start'}`}
                         >
-                            <div className={`flex items-start max-w-xs md:max-w-md lg:max-w-lg ${message.sender === 'me' ? 'flex-row-reverse' : ''}`}>
+                            <div className={`flex items-start max-w-xs md:max-w-md lg:max-w-lg ${m.peerId === matched.peer ? 'flex-row-reverse' : ''}`}>
                                 <div className="flex-shrink-0 h-8 w-8 rounded-full overflow-hidden">
                                     <Image
-                                        src={message.avatar}
+                                        src={m.peerId === matched.peer ? 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_jmhhxy.png' : 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_qkwdzs.jpg'}
                                         alt="User avatar"
                                         width={32}
                                         height={32}
                                         className="object-cover"
                                     />
                                 </div>
-                                <div
-                                    className={`mx-2 px-4 py-2 rounded-lg ${message.sender === 'me'
-                                        ? 'bg-[#B30738] text-white rounded-tr-none'
-                                        : 'bg-white text-gray-800 rounded-tl-none border border-gray-200'
-                                        }`}
+                                <div className={`mx-2 px-4 py-2 rounded-lg ${m.peerId === matched.peer
+                                    ? 'bg-[#B30738] text-white rounded-tr-none'
+                                    : 'bg-white text-gray-800 rounded-tl-none border border-gray-200'
+                                    }`}
                                 >
-                                    {message.text}
+                                    {m.content}
                                 </div>
                             </div>
                         </div>
@@ -88,40 +98,47 @@ const ChatSystem = () => {
                 </div>
             </div>
 
-            {/* Fixed Bottom Area */}
+            {/* Fixed Bottom Controls */}
             <div className="fixed md:ml-72 bottom-0 left-0 right-0 bg-white">
                 {/* Suggestions */}
-                <div className="px-4 py-1 grid md:grid-cols-3 grid- w-full flex-wrap gap-2">
-                    {suggestions.map((suggestion, index) => (
+                <div className="px-4 py-1 grid md:grid-cols-3 w-full gap-2">
+                    {suggestions.map((s, i) => (
                         <button
-                            key={index}
-                            onClick={() => setInputValue(suggestion)}
-                            className="text-sm md:text-lg border-1 border-gray-400 px-3 py-2 md:py-3 w-full hover:bg-gray-200 rounded-full text-gray-700 transition"
+                            key={i}
+                            onClick={() => setInputValue(s)}
+                            className="text-sm md:text-lg border border-gray-400 px-3 py-2 w-full hover:bg-gray-200 rounded-full text-gray-700 transition"
+                            disabled={isMatching}
                         >
-                            {suggestion}
+                            {s}
                         </button>
                     ))}
                 </div>
-
                 {/* Input Area */}
-                <div className="p-4">
-                    <div className="flex border border-gray-300 rounded-lg  items-center">
+                <div className="p-4 flex flex-col md:flex-row items-center">
+                    <form onSubmit={handleSend} className="flex flex-1 border border-gray-300 rounded-lg items-center">
                         <input
                             type="text"
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
                             placeholder="Type your message here..."
-                            className="flex-1 border  px-4 py-2 "
+                            className="flex-1 px-4 py-2"
+                            disabled={isMatching}
                         />
                         <button
-                            onClick={handleSend}
-                            disabled={!inputValue.trim()}
-                            className={`text-white px-4 py-2 `}
+                            type="submit"
+                            disabled={!inputValue.trim() || isMatching}
+                            className="px-4 py-2 disabled:opacity-50"
                         >
                             <FiSend color='#B30738' size={20} />
                         </button>
-                    </div>
+                    </form>
+                    <button
+                        onClick={handleSkip}
+                        disabled={isMatching}
+                        className="ml-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
+                    >
+                        Skip User
+                    </button>
                 </div>
             </div>
         </div>

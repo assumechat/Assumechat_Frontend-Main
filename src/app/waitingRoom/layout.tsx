@@ -1,20 +1,35 @@
-// app/waitingRoom/layout.tsx
 'use client';
 
-import { ReactNode, useEffect } from 'react';
-import { useAppDispatch } from '@/store/hooks';
+import { useEffect } from 'react';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { initSockets, joinQueue, leaveQueue } from '@/store/slices/socketSlice';
+import { useRouter } from 'next/navigation';
 
-export default function WaitingRoomLayout({ children }: { children: ReactNode }) {
+export default function WaitingRoomLayout({ children }: { children: React.ReactNode }) {
     const dispatch = useAppDispatch();
+    const router = useRouter();
+    const matched = useAppSelector(s => s.socket.matched);
 
+    // on mount: connect & join
     useEffect(() => {
         dispatch(initSockets());
         dispatch(joinQueue());
-        return () => {
-            dispatch(leaveQueue());
-        };
+        return () => { dispatch(leaveQueue()); };
     }, [dispatch]);
+
+    // when matched arrives, redirect into the chat tab
+    useEffect(() => {
+        if (matched) {
+            // you can pass roomId & peer via query params or context
+            router.push(`/waitingRoom/tabs/assumer`);
+        }
+    }, [matched, router]);
 
     return <>{children}</>;
 }
+/*
+
+
+
+
+*/

@@ -3,7 +3,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
 import { getQueueSocket, getChatSocket } from '@/Services/socketService';
-
+import { Message } from "@/types/Chat"
 // Types for queue events
 interface QueueUpdate {
   position: number | null;
@@ -17,12 +17,6 @@ interface MatchedInfo {
   peer: string;
 }
 
-// Types for chat messages
-interface Message {
-  sender: string;
-  text: string;
-  timestamp: number;
-}
 
 // Redux slice state
 interface SocketState {
@@ -57,11 +51,9 @@ export const initSockets = createAsyncThunk<void, void, { state: RootState }>(
     queueSocket.on('queueUpdate', (data: QueueUpdate) => dispatch(queueUpdate(data)));
     queueSocket.on('matched', (info: MatchedInfo) => {
       dispatch(matched(info));
-
-      // On match: initialize chat socket
       const chatSocket = getChatSocket();
-      chatSocket.on('connect', () => dispatch(chatConnected(true)));
-      chatSocket.on('disconnect', () => dispatch(chatConnected(false)));
+      // Remove all old handlers for 'message'
+      chatSocket.off('message');
       chatSocket.on('message', (msg: Message) => dispatch(addMessage(msg)));
       chatSocket.emit('joinRoom', { roomId: info.roomId });
     });
@@ -89,12 +81,20 @@ export const leaveQueue = createAsyncThunk<void, void, { state: RootState }>(
 // Thunk: send chat message
 export const sendMessage = createAsyncThunk<void, string, { state: RootState }>(
   'socket/sendMessage',
-  async (text, { dispatch, getState }) => {
+  async (content, { dispatch, getState }) => {
     const info = getState().socket.matched;
     if (!info) return;
     const socket = getChatSocket();
-    socket.emit('message', { roomId: info.roomId, text });
-    dispatch(addMessage({ sender: 'You', text, timestamp: Date.now() }));
+    // Provide full backend shape:
+    const msg: Message = {
+      roomId: info.roomId,
+      senderId: socket.id || "",
+      peerId: info.peer,
+      content,
+      timestamp: Date.now(),
+    };
+    socket.emit('message', msg);
+    //dispatch(addMessage(msg));
   }
 );
 
