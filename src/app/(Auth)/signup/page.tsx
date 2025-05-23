@@ -85,12 +85,24 @@ export default function HeroSection() {
                 router.push("/waitingRoom");
             } catch (error: any) {
                 toast.error(error?.response?.data?.message || 'Something went wrong');
+                console.log("error during regis",error);
             }
             return;
         }
 
         // If signup
         if (!otpSent) {
+            try{
+                const checkEmailUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/check-email`;
+                const checkRes = await axios.post(checkEmailUrl , {email});
+            }
+            catch(error : any){
+                if(error?.response?.status === 409)
+                {
+                    toast.error('Email already exists');
+                    return;
+                }
+            }
             try {
                 const otpUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/request-otp`
                 if (!otpUrl) throw new Error("OTP REQUEST URL not defined");
@@ -103,7 +115,7 @@ export default function HeroSection() {
                     toast.error('Failed to send OTP.');
 
                 }
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error sending OTP:", error);
                 toast.error('Error sending OTP');
             }
@@ -116,7 +128,7 @@ export default function HeroSection() {
         }
         // Final Signup (after OTP sent)
         try {
-            const signupUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+           const signupUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/signup`;
             if (!signupUrl) throw new Error("SIGNUP URL not defined");
             const res = await axios.post(signupUrl, {
                 name, email, password, code: otp,
