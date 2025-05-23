@@ -4,52 +4,80 @@ import { useState, useRef, useEffect } from 'react';
 import { FiSend } from 'react-icons/fi';
 import Image from 'next/image';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { sendMessage } from '@/store/slices/socketSlice';
-import { getQueueSocket } from '@/Services/socketService';
-import { toast } from "sonner" // Install: npm i react-hot-toast
+import { sendMessage, skipMatch, clearMessages, matched, leaveQueue, joinQueue } from '@/store/slices/socketSlice';
+import { toast } from "sonner"
+import { getChatSocket } from '@/Services/socketService';
+
 
 const ChatSystem = () => {
     const dispatch = useAppDispatch();
     const messages = useAppSelector(state => state.socket.messages);
     const chatConnected = useAppSelector(state => state.socket.chatConnected);
-    const matched = useAppSelector(state => state.socket.matched);
+    const matchedState = useAppSelector(state => state.socket.matched);
     const { position, waiting, online } = useAppSelector(s => s.socket);
     const [inputValue, setInputValue] = useState('');
+    const [isMatching, setIsMatching] = useState(!matchedState); // Manual state for UI sync
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // 1. Loader State: If not matched, we are "matching"
-    const isMatching = !matched;
+    // Listen for peer skip/leave events (handled below with getChatSocket)
 
-    const suggestions = [
-        'Assume something about me',
-        'Take a wild guess...',
-        "What's your first impression of me?"
-    ];
+    // Watch for own match updates (Redux)
+    useEffect(() => {
+        if (matchedState) {
+            setIsMatching(false);
+        } else {
+            setIsMatching(true);
+        }
+    }, [matchedState]);
 
-    // 3. Scroll to bottom on new messages
+    // Scroll to bottom on new messages
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // 4. Send a chat message
+    // Send a chat message
     const handleSend = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         const text = inputValue.trim();
-        if (text && matched) {
+        if (text && matchedState) {
             dispatch(sendMessage(text));
             setInputValue('');
         }
     };
 
-    // 5. Skip to next user
+    // Skip to next user
     const handleSkip = () => {
-        if (!matched) return;
-        const queueSocket = getQueueSocket();
-        queueSocket.emit('skipUser', { roomId: matched.roomId });
+        setIsMatching(true);
+        dispatch(clearMessages());
+        dispatch(skipMatch());
         toast.success('Skipped user, searching for a new match...');
+        handleRetry();
     };
 
-    // 6. Show loader while matching
+
+    const handleRetry = () => {
+        // clear any stale chat state
+        dispatch(clearMessages());
+        dispatch(matched(null));
+        // leave & rejoin the queue
+        dispatch(leaveQueue());
+        dispatch(joinQueue());
+        toast('Searching again…');
+    };
+
+    useEffect(() => {
+        const chatSocket = getChatSocket();
+        function onPeerLeft() {
+            dispatch(clearMessages());
+            dispatch(matched(null));
+            toast.info('The other user skipped. Looking for a new match...');
+        }
+        chatSocket.on('peerLeft', onPeerLeft);
+        return () => {
+            chatSocket.off('peerLeft', onPeerLeft);
+        };
+    }, [dispatch]);
+    // Show loader while matching
     if (isMatching) {
         return (
             <div className="flex flex-col items-center justify-center h-full pt-24">
@@ -60,31 +88,43 @@ const ChatSystem = () => {
                 <p className="text-gray-600">Online users: {online}</p>
                 <p className="text-gray-600">Queue Position: {position}</p>
                 <p className="text-gray-800 font-medium mt-2">Matching you with someone...</p>
+                <button
+                    onClick={handleRetry}
+                    className="mt-6 px-4 py-2 bg-[#B30738] text-white rounded hover:bg-[#901e36] transition"
+                >
+                    Find someone else
+                </button>
             </div>
         );
     }
 
+    const suggestions = [
+        'Assume something about me',
+        'Take a wild guess...',
+        "What's your first impression of me?"
+    ];
+
     return (
-        <div className="flex flex-col h-screen md:mt-40 md:pt-40 border-2 border-red-600 mt-12">
+        <div className="flex flex-col h-screen md:pt-20 mt-12">
             {/* Messages Container */}
             <div className="flex-1 overflow-y-auto pb-32">
                 <div className="p-4 space-y-4">
                     {messages.map((m, idx) => (
                         <div
                             key={m.timestamp}
-                            className={`flex ${m.peerId === matched.peer ? 'justify-end' : 'justify-start'}`}
+                            className={`flex ${m.peerId === matchedState?.peer ? 'justify-end' : 'justify-start'}`}
                         >
-                            <div className={`flex items-start max-w-xs md:max-w-md lg:max-w-lg ${m.peerId === matched.peer ? 'flex-row-reverse' : ''}`}>
+                            <div className={`flex items-start max-w-xs md:max-w-md lg:max-w-lg ${m.peerId === matchedState?.peer ? 'flex-row-reverse' : ''}`}>
                                 <div className="flex-shrink-0 h-8 w-8 rounded-full overflow-hidden">
                                     <Image
-                                        src={m.peerId === matched.peer ? 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_jmhhxy.png' : 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_qkwdzs.jpg'}
+                                        src={m.peerId === matchedState?.peer ? 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_jmhhxy.png' : 'https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_qkwdzs.jpg'}
                                         alt="User avatar"
                                         width={32}
                                         height={32}
                                         className="object-cover"
                                     />
                                 </div>
-                                <div className={`mx-2 px-4 py-2 rounded-lg ${m.peerId === matched.peer
+                                <div className={`mx-2 px-4 py-2 rounded-lg ${m.peerId === matchedState?.peer
                                     ? 'bg-[#B30738] text-white rounded-tr-none'
                                     : 'bg-white text-gray-800 rounded-tl-none border border-gray-200'
                                     }`}
@@ -101,7 +141,7 @@ const ChatSystem = () => {
             {/* Fixed Bottom Controls */}
             <div className="fixed md:ml-72 bottom-0 left-0 right-0 bg-white">
                 {/* Suggestions */}
-                <div className="px-4 py-1 grid md:grid-cols-3 w-full gap-2">
+                {messages.length === 0 && <div className="px-4 py-1 grid md:grid-cols-3 w-full gap-2">
                     {suggestions.map((s, i) => (
                         <button
                             key={i}
@@ -112,7 +152,7 @@ const ChatSystem = () => {
                             {s}
                         </button>
                     ))}
-                </div>
+                </div>}
                 {/* Input Area */}
                 <div className="p-4 flex flex-col md:flex-row items-center">
                     <form onSubmit={handleSend} className="flex flex-1 border border-gray-300 rounded-lg items-center">
@@ -135,7 +175,7 @@ const ChatSystem = () => {
                     <button
                         onClick={handleSkip}
                         disabled={isMatching}
-                        className="ml-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 disabled:opacity-50"
+                        className="ml-2 px-4 py-2 bg-[#B30738] rounded  text-white disabled:opacity-50"
                     >
                         Skip User
                     </button>
