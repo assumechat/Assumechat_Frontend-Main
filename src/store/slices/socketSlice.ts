@@ -1,9 +1,9 @@
-
 // src/store/socketSlice.ts
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
 import { getQueueSocket, getChatSocket } from '@/Services/socketService';
-import { Message } from "@/types/Chat"
+import { Message } from '@/types/Chat';
+
 // Types for queue events
 interface QueueUpdate {
   position: number | null;
@@ -16,7 +16,6 @@ interface MatchedInfo {
   roomId: string;
   peer: string;
 }
-
 
 // Redux slice state
 interface SocketState {
@@ -39,7 +38,7 @@ const initialState: SocketState = {
   messages: [],
 };
 
-// Thunk: initialize sockets and set up listeners
+// Thunk: initialize sockets and set up listeners (call this once at app start)
 export const initSockets = createAsyncThunk<void, void, { state: RootState }>(
   'socket/init',
   async (_, { dispatch }) => {
@@ -49,12 +48,33 @@ export const initSockets = createAsyncThunk<void, void, { state: RootState }>(
     queueSocket.on('connect', () => dispatch(socketConnected(true)));
     queueSocket.on('disconnect', () => dispatch(socketConnected(false)));
     queueSocket.on('queueUpdate', (data: QueueUpdate) => dispatch(queueUpdate(data)));
+
     queueSocket.on('matched', (info: MatchedInfo) => {
+      // 1) Store match info
       dispatch(matched(info));
+
+      // 2) Setup chat socket for this room
       const chatSocket = getChatSocket();
-      // Remove all old handlers for 'message'
+
+      // Track chat-namespace connection state
+      chatSocket.off('connect');
+      chatSocket.on('connect', () => dispatch(chatConnected(true)));
+      chatSocket.off('disconnect');
+      chatSocket.on('disconnect', () => dispatch(chatConnected(false)));
+
+      // Receive messages
       chatSocket.off('message');
       chatSocket.on('message', (msg: Message) => dispatch(addMessage(msg)));
+
+      // Handle peer leaving
+      chatSocket.off('peerLeft');
+      chatSocket.on('peerLeft', ({ peerId, roomId }) => {
+        dispatch(clearMessages());
+        dispatch(matched(null));
+        dispatch(chatConnected(false));
+      });
+
+      // Join the chat room
       chatSocket.emit('joinRoom', { roomId: info.roomId });
     });
   }
@@ -64,8 +84,7 @@ export const initSockets = createAsyncThunk<void, void, { state: RootState }>(
 export const joinQueue = createAsyncThunk<void, void, { state: RootState }>(
   'socket/joinQueue',
   async () => {
-    const socket = getQueueSocket();
-    socket.emit('joinQueue');
+    getQueueSocket().emit('joinQueue');
   }
 );
 
@@ -73,28 +92,44 @@ export const joinQueue = createAsyncThunk<void, void, { state: RootState }>(
 export const leaveQueue = createAsyncThunk<void, void, { state: RootState }>(
   'socket/leaveQueue',
   async () => {
-    const socket = getQueueSocket();
-    socket.emit('leaveQueue');
+    getQueueSocket().emit('leaveQueue');
   }
 );
 
 // Thunk: send chat message
 export const sendMessage = createAsyncThunk<void, string, { state: RootState }>(
   'socket/sendMessage',
-  async (content, { dispatch, getState }) => {
+  async (content, { getState }) => {
     const info = getState().socket.matched;
     if (!info) return;
-    const socket = getChatSocket();
-    // Provide full backend shape:
+
+    const chatSocket = getChatSocket();
     const msg: Message = {
       roomId: info.roomId,
-      senderId: socket.id || "",
+      senderId: chatSocket.id || '',
       peerId: info.peer,
       content,
       timestamp: Date.now(),
     };
-    socket.emit('message', msg);
-    //dispatch(addMessage(msg));
+    chatSocket.emit('message', msg);
+  }
+);
+
+// Thunk: skip current match and rejoin queue
+export const skipMatch = createAsyncThunk<void, void, { state: RootState }>(
+  'socket/skipMatch',
+  async (_, { dispatch, getState }) => {
+    const info = getState().socket.matched;
+    if (info) {
+      // Notify backend
+      getChatSocket().emit('leaveRoom', { roomId: info.roomId });
+      dispatch(chatConnected(false));
+    }
+
+    // Leave and rejoin queue
+    await dispatch(leaveQueue());
+    dispatch(clearMessages());
+    dispatch(matched(null));
   }
 );
 
@@ -107,12 +142,11 @@ const socketSlice = createSlice({
       state.connected = action.payload;
     },
     queueUpdate(state, action: PayloadAction<QueueUpdate>) {
-      const { position, waiting, online } = action.payload;
-      state.position = position;
-      state.waiting = waiting;
-      state.online = online;
+      state.position = action.payload.position;
+      state.waiting = action.payload.waiting;
+      state.online = action.payload.online;
     },
-    matched(state, action: PayloadAction<MatchedInfo>) {
+    matched(state, action: PayloadAction<MatchedInfo | null>) {
       state.matched = action.payload;
     },
     chatConnected(state, action: PayloadAction<boolean>) {
@@ -121,8 +155,19 @@ const socketSlice = createSlice({
     addMessage(state, action: PayloadAction<Message>) {
       state.messages.push(action.payload);
     },
+    clearMessages(state) {
+      state.messages = [];
+    },
   },
 });
 
-export const { socketConnected, queueUpdate, matched, chatConnected, addMessage } = socketSlice.actions;
+export const {
+  socketConnected,
+  queueUpdate,
+  matched,
+  chatConnected,
+  addMessage,
+  clearMessages,
+} = socketSlice.actions;
+
 export default socketSlice.reducer;
