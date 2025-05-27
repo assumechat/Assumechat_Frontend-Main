@@ -1,5 +1,6 @@
 import React from 'react';
 
+import collegeList from '@/Data/Colleges.json';
 interface StepOneProps {
   academicData: {
     university: string;
@@ -8,7 +9,6 @@ interface StepOneProps {
   };
   handleAcademicChange: (field: string, value: string) => void;
 }
-
 const GraduationCapIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clipPath="url(#clip0_385_2015)">
@@ -54,9 +54,13 @@ export default function StepOne({ academicData, handleAcademicChange }: StepOneP
             className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#B30738] focus:outline-none mt-1 text-sm sm:text-base"
           >
             <option value="">Choose Your University</option>
-            <option value="Nirma">Nirma</option>
-            <option value="DU">DU</option>
-            <option value="IIT Bombay">IIT Bombay</option>
+            {[...collegeList]
+            .sort((a,b)=> a.name.localeCompare(b.name))
+            .map((college , index) => (
+              <option key={index} value={college.name}>
+                {college.name}
+              </option>
+            ))}
           </select>
         </div>
 
