@@ -1,6 +1,6 @@
 import React from 'react';
 
-import collegeList from '@/Data/Colleges.json';
+import collegeList from '@/Data/colleges.json';
 interface StepOneProps {
   academicData: {
     university: string;
