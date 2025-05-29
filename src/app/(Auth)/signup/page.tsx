@@ -42,9 +42,32 @@ export default function HeroSection() {
     const [otpSent, setOtpSent] = useState(false);
     const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
     const inputsRef = useRef<HTMLInputElement[]>([]);
+    const [passwordError, setPasswordError] = useState("");
+    const [passwordStrength, setPasswordStrength] = useState(0);
+
     const dispatch = useDispatch();
-    const passwordStrength = calculatePasswordStrength(password);
+    //const passwordStrength = calculatePasswordStrength(password);
     const router = useRouter();
+
+
+    //password
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+        const strength = calculatePasswordStrength(e.target.value);
+        setPasswordStrength(strength);
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+        if(e.target.value.length ===0)
+        {
+            setPasswordError("");
+        }
+        else if(!regex.test(e.target.value)) {
+            setPasswordError("Password must be at least 8 characters and include uppercase, lowercase, number, and special character.");
+        }
+        else{
+            setPasswordError("");
+        }
+
+    }
 
 
     const handleChange = (index: number, value: string) => {
@@ -120,6 +143,11 @@ export default function HeroSection() {
                 toast.error('Error sending OTP');
             }
             return;
+        }
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,}$/;
+        if(!passwordRegex.test(password))
+        {
+            toast.error('Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
         }
         // Check password match
         if (password !== confirmPassword) {
@@ -441,11 +469,11 @@ export default function HeroSection() {
                                         type={showPassword ? 'text' : 'password'}
                                         id="password"
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={ handlePasswordChange}
                                         className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:border-transparent"
                                         placeholder="At least 8 characters"
                                         required
-                                        minLength={8}
+                                        // minLength={8}
                                     />
                                     <button
                                         type="button"
@@ -481,9 +509,9 @@ export default function HeroSection() {
                                             </div>
                                         </div>
                                     )}
-                                    {password.length > 0 && password.length < 8 && (
-                                        <p className="text-red-500">Password must be at least 8 characters</p>
-                                    )}
+                                    {passwordError && (
+                                         <p className="text-red-500 text-xs mt-1">{passwordError}</p>
+                                     )}
                                 </div>
                             </div>
 
