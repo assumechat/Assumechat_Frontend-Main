@@ -22,14 +22,10 @@ export interface Message {
  * Event names used in the chat namespace
  */
 export enum ChatEvent {
-  /** Emitted by client to join a room */
-  JOIN_ROOM    = 'joinRoom',
-  /** Acknowledgement that client joined */
-  JOINED_ROOM  = 'joinedRoom',
-  /** Emitted by either side to send a message */
-  MESSAGE      = 'message',
-  /** Emitted by server or client when typing */
-  TYPING       = 'typing',
-  /** Emitted by server when peer disconnects */
-  PEER_LEFT    = 'peerLeft',
+  JOIN_ROOM = 'joinRoom',
+  JOINED_ROOM = 'joinedRoom',
+  HANDSHAKE = 'handshake',    // <— new
+  MESSAGE = 'message',
+  TYPING = 'typing',
+  PEER_LEFT = 'peerLeft',
 }
