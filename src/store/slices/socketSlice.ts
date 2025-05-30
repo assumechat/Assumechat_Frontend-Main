@@ -3,7 +3,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
 import { getQueueSocket, getChatSocket } from '@/Services/socketService';
 import { Message } from '@/types/Chat';
-
+import { ChatEvent } from '@/types/Chat';
 // Types for queue events
 interface QueueUpdate {
   position: number | null;
@@ -41,7 +41,7 @@ const initialState: SocketState = {
 // Thunk: initialize sockets and set up listeners (call this once at app start)
 export const initSockets = createAsyncThunk<void, void, { state: RootState }>(
   'socket/init',
-  async (_, { dispatch }) => {
+  async (_, { dispatch, getState }) => {
     if (typeof window === 'undefined') return;
 
     const queueSocket = getQueueSocket();
@@ -74,6 +74,23 @@ export const initSockets = createAsyncThunk<void, void, { state: RootState }>(
         dispatch(chatConnected(false));
       });
 
+      // ─── HANDSHAKE ───
+
+      // a) Tear down any old JOINED_ROOM listener
+      chatSocket.off(ChatEvent.JOINED_ROOM);
+
+      // b) Wait for the server to confirm you've joined…
+      chatSocket.once(ChatEvent.JOINED_ROOM, ({ roomId }) => {
+        // Grab your user once from the store:
+        const userObj = getState().user.user;  // ← your auth slice
+        if (userObj) {
+          chatSocket.emit(ChatEvent.HANDSHAKE, {
+            roomId,
+            userId: userObj._id,
+            userName: userObj.name,
+          });  // ← NEW: send your metadata
+        }
+      });
       // Join the chat room
       chatSocket.emit('joinRoom', { roomId: info.roomId });
     });
