@@ -30,7 +30,7 @@ const FeedbackPage = () => {
       toast.success('Feedback sent, thank you');
       setFeedbackText('');
       setRating(3); 
-      router.push('/waitingRoom/tabs/assumer/feedback');
+      router.push('/waitingRoom/tabs/assumer/report');
     } catch (error) {
       toast.error('Failed to send feedback. Please try again.');
       console.error('Feedback submission error:', error);
