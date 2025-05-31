@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { getChatSocket } from '@/Services/socketService';
 import { ChatEvent } from '@/types/Chat';
 import { LogOutIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 
 const ChatSystem = () => {
@@ -20,8 +21,20 @@ const ChatSystem = () => {
     const [inputValue, setInputValue] = useState('');
     const [isMatching, setIsMatching] = useState(!matchedState); // Manual state for UI sync
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const router = useRouter(); 
     const [peerInfo, setPeerInfo] = useState<{ userId: string; userName?: string } | null>(null);
     // Listen for peer skip/leave events (handled below with getChatSocket)
+
+//redirect to matched user page 
+  useEffect(() => {
+    if (matchedState) {
+        setIsMatching(false);
+        router.push('/waitingRoom/tabs/assumer/matchedUser');  
+    } else {
+        setIsMatching(true);
+    }
+}, [matchedState, router]);
+
 
     // Watch for own match updates (Redux)
     useEffect(() => {
@@ -67,9 +80,12 @@ const ChatSystem = () => {
         setIsMatching(true);
         dispatch(clearMessages());
         dispatch(skipMatch());
-        toast.success('Skipped user, searching for a new match...');
-        handleRetry();
+        //toast.success('Skipped user, searching for a new match...');
+        toast.success('Skipped used , redirecting to feedback page');
+        router.push('/waitingRoom/tabs/assumer/feedback');
+        // handleRetry();
     };
+
 
 
     const handleRetry = () => {

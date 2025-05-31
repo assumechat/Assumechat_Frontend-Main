@@ -98,11 +98,8 @@ export default function WaitingRoom() {
 
                 {/* Footer text */}
                 <div className="text-center max-w-2xl">
-                    <p className="text-gray-600 mb-2">
-                        We'll pull you into a chat as soon as we find a match.
-                    </p>
-                    <p className="text-[#B30738] font-medium">
-                        In the meantime, enjoy the campus vibes.
+                    <p className="text-[#B30738] font-medium ">
+                        We'll pull you into a chat as soon as we find a match.In the meantime, enjoy the campus vibes.
                     </p>
                 </div>
             </div>
