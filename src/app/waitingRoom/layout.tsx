@@ -9,7 +9,12 @@ export default function WaitingRoomLayout({ children }: { children: React.ReactN
     const dispatch = useAppDispatch();
     const router = useRouter();
     const matched = useAppSelector(s => s.socket.matched);
-
+    const user = useAppSelector((state) => state.user.user);
+    useEffect(() => {
+        if (!user?._id) {
+            router.push("/signup")
+        }
+    }, [user])
     // on mount: connect & join
     useEffect(() => {
         dispatch(initSockets());
