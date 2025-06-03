@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
     Code,
@@ -26,7 +26,11 @@ export default function InterestSelection() {
     });
     const user = useSelector((state: RootState) => state.user.user);
     const _id = user?._id;
-
+    useEffect(() => {
+        if (!_id) {
+            router.push("/signup")
+        }
+    }, [_id])
 
     const handleSubmit = async () => {
 

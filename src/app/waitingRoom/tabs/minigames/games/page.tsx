@@ -2,12 +2,17 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { FaUserFriends } from 'react-icons/fa';
-import EyeIcon from '@/components/Icons/eye';
+import { EyeIcon } from '@/components/Icons/eye';
 import { gametypes } from '@/types/Game.type';
 import retroGames from '@/Data/Games';
 import EmulatorContainer from '@/components/Games/EmulatorContainer'; // adjust path if needed
-
+import {
+  FaUserFriends,
+  FaArrowUp,
+  FaArrowDown,
+  FaArrowLeft,
+  FaArrowRight,
+} from 'react-icons/fa';
 export default function GameOnePage() {
   const [game, setGame] = useState<gametypes>();
   const [isGameRunning, setIsGameRunning] = useState(false);
@@ -52,6 +57,7 @@ export default function GameOnePage() {
                 width={1000}
                 height={200}
                 className="w-full h-auto object-cover"
+                unoptimized
               />
             </div>
           </div>
@@ -96,13 +102,101 @@ export default function GameOnePage() {
           </div>
 
           {/* 🛑 STOP BUTTON */}
-          <div className="mt-6 flex justify-end">
+          <div className="mt-6 flex justify-between">
+            <button
+              className="px-6 py-2 rounded-xl font-bold text-white
+                       bg-gradient-to-br from-blue-500 to-blue-700 bg-opacity-30 backdrop-blur-md
+                       shadow-lg border border-white/20 hover:from-blue-600 hover:to-blue-800 transition mr-4"
+              aria-label="Use Keyboard"
+              type="button"
+              tabIndex={-1}
+              disabled
+            >
+              Use Button In Your Keyboard As It’s Shown Below
+            </button>
+
             <button
               onClick={handleStop}
-              className="bg-gray-800 text-white px-6 py-2 rounded-xl font-bold hover:bg-gray-600 transition"
+              className="px-6 py-2 rounded-xl font-bold text-white
+                             bg-gradient-to-br from-red-600 to-red-800 bg-opacity-30 backdrop-blur-md
+                             shadow-lg border border-white/20 hover:from-red-700 hover:to-red-900 transition"
             >
               Stop Game
             </button>
+          </div>
+          {/* 🎛️ ON-SCREEN CONTROLLER UI */}
+          <div className="mt-12 flex md:flex-row justify-between px-14 flex-col items-center space-y-8">
+            {/* D-PAD */}
+            <div className="grid grid-cols-3 grid-rows-3 gap-2">
+              <div /> {/* empty */}
+              <button
+                className="w-14 h-14 flex items-center justify-center rounded-full
+                               bg-gradient-to-br from-indigo-600 to-purple-600 bg-opacity-30
+                               backdrop-blur-md text-white text-lg font-bold shadow-lg border border-white/20"
+                aria-label="Up"
+              >
+                <FaArrowUp />
+              </button>
+              <div /> {/* empty */}
+              <button
+                className="w-14 h-14 flex items-center justify-center rounded-full
+                               bg-gradient-to-br from-indigo-600 to-purple-600 bg-opacity-30
+                               backdrop-blur-md text-white text-lg font-bold shadow-lg border border-white/20"
+                aria-label="Left"
+              >
+                <FaArrowLeft />
+              </button>
+              <div /> {/* center blank */}
+              <button
+                className="w-14 h-14 flex items-center justify-center rounded-full
+                               bg-gradient-to-br from-indigo-600 to-purple-600 bg-opacity-30
+                               backdrop-blur-md text-white text-lg font-bold shadow-lg border border-white/20"
+                aria-label="Right"
+              >
+                <FaArrowRight />
+              </button>
+              <div /> {/* empty */}
+              <button
+                className="w-14 h-14 flex items-center justify-center rounded-full
+                               bg-gradient-to-br from-indigo-600 to-purple-600 bg-opacity-30
+                               backdrop-blur-md text-white text-lg font-bold shadow-lg border border-white/20"
+                aria-label="Down"
+              >
+                <FaArrowDown />
+              </button>
+              <div /> {/* empty */}
+            </div>
+
+            {/* Action Buttons: Z, X, Enter */}
+            <div className="flex flex-col items-center space-y-4">
+              <div className="flex space-x-6">
+                <button
+                  className="w-14 h-14 flex items-center justify-center rounded-full
+                                 bg-gradient-to-br from-pink-500 to-red-500 bg-opacity-30
+                                 backdrop-blur-md text-white text-lg font-bold shadow-lg border border-white/20"
+                  aria-label="Button Z"
+                >
+                  Z
+                </button>
+                <button
+                  className="w-14 h-14 flex items-center justify-center rounded-full
+                                 bg-gradient-to-br from-pink-500 to-red-500 bg-opacity-30
+                                 backdrop-blur-md text-white text-lg font-bold shadow-lg border border-white/20"
+                  aria-label="Button X"
+                >
+                  X
+                </button>
+              </div>
+              <button
+                className="px-8 py-2 rounded-full font-bold text-white
+                               bg-gradient-to-br from-yellow-500 to-yellow-700 bg-opacity-30
+                               backdrop-blur-md shadow-lg border border-white/20
+                               hover:from-yellow-600 hover:to-yellow-800 transition"
+                aria-label="Enter"
+              >
+                Enter
+              </button>
+            </div>
           </div>
         </>
       )}
