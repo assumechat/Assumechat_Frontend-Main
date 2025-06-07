@@ -6,6 +6,11 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '@/lib/logout';
+import { logout } from '@/store/slices/userSlice';
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,9 +18,17 @@ export default function Header() {
     const user = useSelector((state: { user: UserState }) => state.user.user);
     const isAuthenticated = useSelector((state: { user: UserState }) => state.user.isAuthenticated);
 
+    const router = useRouter();
+    const dispatch = useDispatch();
+
     // helper to check active link
     const isActive = (href: string) => pathname === href;
 
+    const handleLogout = async () => {
+        await logoutUser();
+        dispatch(logout());
+        router.push('/');
+    };
     return (
         <>
             <header className="w-full fixed px-4 md:px-20 py-4 flex items-center justify-between border-b border-gray-200 bg-opacity-30 backdrop-blur-[2px] z-50">
@@ -84,6 +97,7 @@ export default function Header() {
                         isAuthenticated ? (
                             <Link
                                 href="/signin"
+                                onClick={handleLogout}
                                 className={`
               px-6 md:px-12 py-2 border border-[#B30738] rounded-lg
               ${isActive('/signin')
@@ -191,7 +205,10 @@ export default function Header() {
                                                 ? 'bg-gray-300 text-black'
                                                 : 'bg-white text-[#B30738] hover:bg-gray-100'}
                     `}
-                                        onClick={() => setIsMenuOpen(false)}
+                                        onClick={() => {
+                                            handleLogout();
+                                            setIsMenuOpen(false);
+                                        }}
                                     >
                                         Log Out
                                     </Link>

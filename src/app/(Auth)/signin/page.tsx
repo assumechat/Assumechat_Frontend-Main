@@ -10,6 +10,7 @@ import { useDispatch, UseDispatch } from 'react-redux';
 import { setUser } from '@/store/slices/userSlice';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 export default function HeroSection() {
     const reviewsRef = useRef<HTMLDivElement[]>([]);
@@ -431,12 +432,12 @@ export default function HeroSection() {
                         <div className="mt-14 text-right">
                             <p className="text-gray-600">
                                 {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
-                                <a
-                                    href={isLogin ? '/signup' : '/signin'}
+                                <Link
+                                    href='/signup'
                                     className="text-[#B30738] hover:underline font-medium"
                                 >
                                     {isLogin ? 'Sign Up' : 'Sign In'}
-                                </a>
+                                </Link>
                             </p>
                         </div>
                     </div>
