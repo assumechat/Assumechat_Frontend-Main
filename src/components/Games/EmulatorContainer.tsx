@@ -2,21 +2,21 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface EmulatorContainerProps {
-    romUrl: string;
+  romUrl: string;
 }
 
 export default function EmulatorContainer({ romUrl }: EmulatorContainerProps) {
-    const [srcDoc, setSrcDoc] = useState<string>('');
-    const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [srcDoc, setSrcDoc] = useState<string>('');
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-    useEffect(() => {
-        if (!romUrl) {
-            setSrcDoc('');
-            return;
-        }
+  useEffect(() => {
+    if (!romUrl) {
+      setSrcDoc('');
+      return;
+    }
 
-        // When romUrl changes, generate new HTML for the iframe
-        const html = `
+    // When romUrl changes, generate new HTML for the iframe
+    const html = `
       <!DOCTYPE html>
       <html lang="en">
         <head>
@@ -53,16 +53,16 @@ export default function EmulatorContainer({ romUrl }: EmulatorContainerProps) {
       </html>
     `.trim();
 
-        setSrcDoc(html);
-    }, [romUrl]);
+    setSrcDoc(html);
+  }, [romUrl]);
 
-    // Whenever romUrl changes or mounts, React will reload the <iframe> with new srcDoc.
-    return (
-        <iframe
-            ref={iframeRef}
-            srcDoc={srcDoc}
-            sandbox="allow-scripts allow-same-origin"
-            style={{ width: '100%', height: '100%', border: 'none' }}
-        />
-    );
+  // Whenever romUrl changes or mounts, React will reload the <iframe> with new srcDoc.
+  return (
+    <iframe
+      ref={iframeRef}
+      srcDoc={srcDoc}
+      sandbox="allow-scripts allow-same-origin"
+      style={{ width: '100%', height: '100%', border: 'none' }}
+    />
+  );
 }

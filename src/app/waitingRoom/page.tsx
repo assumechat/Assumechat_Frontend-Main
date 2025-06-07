@@ -39,7 +39,7 @@ export default function WaitingRoom() {
                 {/* Activity cards */}
                 <div className="flex justify-center items-center flex-wrap gap-6 w-full  mb-10">
                     {/* Watch Reels card */}
-                    <div onClick={()=> router.push("waitingRoom/tabs/reels")} className="bg-white  p-5 rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                    <div onClick={() => router.push("waitingRoom/tabs/reels")} className="bg-white  p-5 rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                         <div className="h-auto rounded-xl flex items-center justify-center">
                             <Image
                                 className='w-full mb-4 h-full object-contain'
@@ -58,7 +58,7 @@ export default function WaitingRoom() {
                     </div>
 
                     {/* Mini Games card */}
-                    <div onClick={()=> router.push("waitingRoom/tabs/minigames")} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md p-5 transition-shadow">
+                    <div onClick={() => router.push("waitingRoom/tabs/minigames")} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md p-5 transition-shadow">
                         <div className="h-auto  rounded-xl  flex items-center justify-center">
                             <Image
                                 className='w-full mb-4 h-full object-contain'
@@ -77,7 +77,7 @@ export default function WaitingRoom() {
                     </div>
 
                     {/* Uni Space card */}
-                    <div onClick={()=> router.push("waitingRoom/tabs/unispace")} className="bg-white p-5 rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                    <div onClick={() => router.push("waitingRoom/tabs/unispace")} className="bg-white p-5 rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                         <div className="h-auto  rounded-xl  flex items-center justify-center">
                             <Image
                                 className='w-full mb-4 h-full object-contain'
