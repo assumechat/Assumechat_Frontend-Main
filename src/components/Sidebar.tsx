@@ -74,7 +74,7 @@ const Header = () => {
                     {isAuthenticated ? (
                         [
                             { label: 'Waiting Room', href: '/waitingRoom' },
-                            { label: 'Profile', href: '/profile' },
+                            { label: 'Profile', href: '/ComingSoon' },
                         ].map(({ label, href }) => (
                             <Link
                                 key={href}
@@ -89,12 +89,12 @@ const Header = () => {
                         ))
                     ) : (
                         [
-                            { label: 'How it works?', href: '/how-it-works' },
-                            { label: 'Features', href: '/features' },
-                            { label: 'About Us', href: '/about' },
+                            { label: 'How it works?', href: '/ComingSoon' },
+                            { label: 'Features', href: '/ComingSoon' },
+                            { label: 'About Us', href: '/ComingSoon' },
                         ].map(({ label, href }) => (
                             <Link
-                                key={href}
+                                 key={`${label}-${href}`}
                                 href={href}
                                 className={`py-2 ${isActive(href)
                                     ? 'text-[#B30738] border-b-2 border-[#B30738]'
@@ -211,7 +211,7 @@ const Header = () => {
                                         {getSubTabs().map((tab) => (
                                             <Link
                                                 key={tab.id}
-                                                href={`/waitingRoom/tabs/${currentTab}/${tab.id}`}
+                                                href={'/ComingSoon'}
                                                 className={`flex items-center p-3 rounded-lg text-sm transition-colors ${pathname.includes(tab.id)
                                                     ? 'bg-[#B30738]/10 text-[#B30738]'
                                                     : 'hover:bg-gray-100 text-gray-700'
@@ -231,7 +231,7 @@ const Header = () => {
 
                                         [
                                             { label: 'Waiting Room', href: '/waitingRoom' },
-                                            { label: 'Profile', href: '/profile' },
+                                            { label: 'Profile', href: '/ComingSoon' },
                                         ].map(({ label, href }) => (
                                             <Link
                                                 key={href}
@@ -252,12 +252,12 @@ const Header = () => {
                                         (
 
                                             [
-                                                { label: 'How it works?', href: '/how-it-works' },
-                                                { label: 'Features', href: '/features' },
-                                                { label: 'About Us', href: '/about' },
+                                                { label: 'How it works?', href: '/ComingSoon' },
+                                                { label: 'Features', href: '/ComingSoon' },
+                                                { label: 'About Us', href: '/ComingSoon' },
                                             ].map(({ label, href }) => (
                                                 <Link
-                                                    key={href}
+                                                    key={`${label}-${href}`}
                                                     href={href}
                                                     className={`
                                   py-2 px-4
@@ -436,7 +436,7 @@ const Sidebar = ({ Children }: { Children: ReactNode }) => {
                             {getSubTabs().map((tab) => (
                                 <Link
                                     key={tab.id}
-                                    href={`/waitingRoom/tabs/${currentTab}/${tab.id}`}
+                                    href={'/ComingSoon'}
                                     className={`flex items-center p-3 rounded-lg text-sm transition-colors ${pathname.includes(tab.id)
                                         ? 'bg-[#B30738]/10 text-[#B30738]'
                                         : 'hover:bg-gray-100 text-gray-700'

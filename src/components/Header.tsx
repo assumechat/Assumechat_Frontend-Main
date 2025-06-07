@@ -38,7 +38,7 @@ export default function Header() {
                         isAuthenticated ? (
                             [
                                 { label: 'Waiting Room', href: '/waitingRoom' },
-                                { label: 'Profile', href: '/profile' },
+                                { label: 'Profile', href: '/ComingSoon' },
                             ].map(({ label, href }) => (
                                 <Link
                                     key={href}
@@ -56,12 +56,12 @@ export default function Header() {
                             ))
                         ) : (
                             [
-                                { label: 'How it works?', href: '/how-it-works' },
-                                { label: 'Features', href: '/features' },
-                                { label: 'About Us', href: '/about' },
+                                { label: 'How it works?', href: '/ComingSoon' },
+                                { label: 'Features', href: '/ComingSoon' },
+                                { label: 'About Us', href: '/ComingSoon' },
                             ].map(({ label, href }) => (
                                 <Link
-                                    key={href}
+                                    key={`${label}-${href}`}
                                     href={href}
                                     className={`
                         py-2
@@ -136,7 +136,7 @@ export default function Header() {
 
                                 [
                                     { label: 'Waiting Room', href: '/waitingRoom' },
-                                    { label: 'Profile', href: '/profile' },
+                                    { label: 'Profile', href: '/ComingSoon' },
                                 ].map(({ label, href }) => (
                                     <Link
                                         key={href}
@@ -157,12 +157,12 @@ export default function Header() {
                                 (
 
                                     [
-                                        { label: 'How it works?', href: '/how-it-works' },
-                                        { label: 'Features', href: '/features' },
-                                        { label: 'About Us', href: '/about' },
+                                        { label: 'How it works?', href: '/ComingSoon' },
+                                        { label: 'Features', href: '/ComingSoon' },
+                                        { label: 'About Us', href: '/ComingSoon' },
                                     ].map(({ label, href }) => (
                                         <Link
-                                            key={href}
+                                            key={`${label}-${href}`}
                                             href={href}
                                             className={`
                                   py-2 px-4
