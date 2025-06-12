@@ -174,9 +174,12 @@ const ChatSystem = () => {
   useEffect(() => {
     const chatSocket = getChatSocket();
     function onPeerLeft() {
+      if (matchedState) {
+        setshowFeedbackModal(true);
+      }
+      // Reset chat state
       dispatch(clearMessages());
       dispatch(matched(null));
-      setshowFeedbackModal(true); // ✅ show feedback
       setIsMatching(true);
     }
     chatSocket.on('peerLeft', onPeerLeft);
@@ -184,10 +187,18 @@ const ChatSystem = () => {
       chatSocket.off('peerLeft', onPeerLeft);
     };
   }, [dispatch]);
-  // Show loader while matching
-  if (isMatching) {
-    return (
-      <>
+
+  const suggestions = [
+    'Assume something about me',
+    'Take a wild guess...',
+    "What's your first impression of me?"
+  ];
+
+
+  return (
+    <div className="flex flex-col md:mt-20 h-screen rounded-2xl border-4 bg-gray-200">
+      {/* Top Bar - Sticky */}
+      {isMatching && <>
         <div className="flex flex-col items-center justify-center h-full pt-24">
           <svg className="animate-spin h-8 w-8 text-[#B30738] mb-4" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
@@ -217,18 +228,7 @@ const ChatSystem = () => {
           />
         )}
       </>
-    );
-  }
-
-  const suggestions = [
-    'Assume something about me',
-    'Take a wild guess...',
-    "What's your first impression of me?"
-  ];
-
-  return (
-    <div className="flex flex-col md:mt-20 h-screen rounded-2xl border-4 bg-gray-200">
-      {/* Top Bar - Sticky */}
+      }
       <div className="sticky top-0 z-10 m-4 p-4 bg-white rounded-3xl flex items-center justify-between border-b border-gray-300">
         <div className="flex items-center space-x-3">
           {peerInfo && (
