@@ -12,7 +12,7 @@ export default function WaitingRoomLayout({ children }: { children: React.ReactN
     const user = useAppSelector((state) => state.user.user);
     useEffect(() => {
         if (!user?._id) {
-            router.push("/signup")
+            router.push("/")
         }
     }, [user])
     // on mount: connect & join

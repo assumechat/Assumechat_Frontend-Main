@@ -9,6 +9,10 @@ import { useSelector } from 'react-redux';
 import { useDisclosure } from '@chakra-ui/react';
 import { Drawer, DrawerBody, DrawerCloseButton, DrawerContent, DrawerHeader, DrawerOverlay, Button } from '@chakra-ui/react';
 import { useAppSelector } from '@/store/hooks';
+import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '@/lib/logout';
+import { logout } from '@/store/slices/userSlice';
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,6 +22,16 @@ const Header = () => {
     const isAuthenticated = useSelector((state: { user: any }) => state.user.isAuthenticated);
     const isActive = (href: string) => pathname === href;
     const currentTab = pathname.split('/')[3] || 'reels';
+
+
+    const router = useRouter();
+    const dispatch = useDispatch();
+
+    const handleLogout = async () => {
+        await logoutUser();
+        dispatch(logout());
+        router.push('/');
+    };
 
     const mainTabs = [
         { id: 'reels', icon: Film, label: 'Reels' },
@@ -74,7 +88,7 @@ const Header = () => {
                     {isAuthenticated ? (
                         [
                             { label: 'Waiting Room', href: '/waitingRoom' },
-                            { label: 'Profile', href: '/profile' },
+                            { label: 'Profile', href: '/ComingSoon' },
                         ].map(({ label, href }) => (
                             <Link
                                 key={href}
@@ -89,12 +103,12 @@ const Header = () => {
                         ))
                     ) : (
                         [
-                            { label: 'How it works?', href: '/how-it-works' },
-                            { label: 'Features', href: '/features' },
-                            { label: 'About Us', href: '/about' },
+                            { label: 'How it works?', href: '/ComingSoon' },
+                            { label: 'Features', href: '/ComingSoon' },
+                            { label: 'About Us', href: '/ComingSoon' },
                         ].map(({ label, href }) => (
                             <Link
-                                key={href}
+                                 key={`${label}-${href}`}
                                 href={href}
                                 className={`py-2 ${isActive(href)
                                     ? 'text-[#B30738] border-b-2 border-[#B30738]'
@@ -112,6 +126,7 @@ const Header = () => {
                     {isAuthenticated ? (
                         <Link
                             href="/signin"
+                            onClick={handleLogout}
                             className={`px-6 md:px-12 py-2 border border-[#B30738] rounded-lg ${isActive('/signin')
                                 ? 'bg-gray-300 text-black'
                                 : 'bg-white text-[#B30738] hover:bg-gray-100'
@@ -172,7 +187,7 @@ const Header = () => {
                                         <span className="text-sm font-medium">{position || 0} In Queue</span>
                                     </div>
                                 </div>
-                                   <div className="bg-white border border-[#B30738] rounded-lg py-3 px-1 mr-4  flex items-center justify-between">
+                                <div className="bg-white border border-[#B30738] rounded-lg py-3 px-1 mr-4  flex items-center justify-between">
                                     <div className="flex items-center">
                                         <svg className='mx-2' width="12" height="17" viewBox="0 0 12 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M11.625 4.40938V1.625C11.625 1.29348 11.4933 0.975537 11.2589 0.741116C11.0245 0.506696 10.7065 0.375 10.375 0.375H1.625C1.29348 0.375 0.975537 0.506696 0.741116 0.741116C0.506696 0.975537 0.375 1.29348 0.375 1.625V4.4375C0.375422 4.63148 0.420789 4.82273 0.50754 4.99623C0.594292 5.16973 0.720068 5.32077 0.875 5.4375L4.95859 8.5L0.875 11.5625C0.720068 11.6792 0.594292 11.8303 0.50754 12.0038C0.420789 12.1773 0.375422 12.3685 0.375 12.5625V15.375C0.375 15.7065 0.506696 16.0245 0.741116 16.2589C0.975537 16.4933 1.29348 16.625 1.625 16.625H10.375C10.7065 16.625 11.0245 16.4933 11.2589 16.2589C11.4933 16.0245 11.625 15.7065 11.625 15.375V12.5906C11.6246 12.3974 11.5796 12.2069 11.4935 12.0338C11.4075 11.8608 11.2827 11.7099 11.1289 11.593L7.03672 8.5L11.1289 5.40625C11.2828 5.28952 11.4076 5.13882 11.4937 4.9659C11.5797 4.79298 11.6247 4.60252 11.625 4.40938ZM1.625 1.625H10.375V4.40938L9.92422 4.75H2.04141L1.625 4.4375V1.625ZM6 7.71875L3.70859 6H8.27109L6 7.71875ZM10.375 15.375H1.625V12.5625L5.375 9.75V11.625C5.375 11.7908 5.44085 11.9497 5.55806 12.0669C5.67527 12.1842 5.83424 12.25 6 12.25C6.16576 12.25 6.32473 12.1842 6.44194 12.0669C6.55915 11.9497 6.625 11.7908 6.625 11.625V9.75625L10.375 12.5906V15.375Z" fill="#B30738" />
@@ -211,7 +226,7 @@ const Header = () => {
                                         {getSubTabs().map((tab) => (
                                             <Link
                                                 key={tab.id}
-                                                href={`/waitingRoom/tabs/${currentTab}/${tab.id}`}
+                                                href={'/ComingSoon'}
                                                 className={`flex items-center p-3 rounded-lg text-sm transition-colors ${pathname.includes(tab.id)
                                                     ? 'bg-[#B30738]/10 text-[#B30738]'
                                                     : 'hover:bg-gray-100 text-gray-700'
@@ -231,7 +246,7 @@ const Header = () => {
 
                                         [
                                             { label: 'Waiting Room', href: '/waitingRoom' },
-                                            { label: 'Profile', href: '/profile' },
+                                            { label: 'Profile', href: '/ComingSoon' },
                                         ].map(({ label, href }) => (
                                             <Link
                                                 key={href}
@@ -252,12 +267,12 @@ const Header = () => {
                                         (
 
                                             [
-                                                { label: 'How it works?', href: '/how-it-works' },
-                                                { label: 'Features', href: '/features' },
-                                                { label: 'About Us', href: '/about' },
+                                                { label: 'How it works?', href: '/ComingSoon' },
+                                                { label: 'Features', href: '/ComingSoon' },
+                                                { label: 'About Us', href: '/ComingSoon' },
                                             ].map(({ label, href }) => (
                                                 <Link
-                                                    key={href}
+                                                    key={`${label}-${href}`}
                                                     href={href}
                                                     className={`
                                   py-2 px-4
@@ -285,7 +300,10 @@ const Header = () => {
                                                         ? 'bg-gray-300 text-black'
                                                         : 'bg-white text-[#B30738] hover:bg-gray-100'}
                     `}
-                                                onClick={() => setIsMenuOpen(false)}
+                                                onClick={() => {
+                                                    handleLogout();
+                                                    setIsMenuOpen(false);
+                                                }}
                                             >
                                                 Log Out
                                             </Link>
@@ -390,7 +408,7 @@ const Sidebar = ({ Children }: { Children: ReactNode }) => {
                             <span className="text-sm font-medium">{position || 0} In Queue</span>
                         </div>
                     </div>
-                       <div className="bg-white border border-[#B30738] rounded-lg p-3 flex items-center justify-between">
+                    <div className="bg-white border border-[#B30738] rounded-lg p-3 flex items-center justify-between">
                         <div className="flex items-center">
                             <svg className='mx-2' width="12" height="17" viewBox="0 0 12 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M11.625 4.40938V1.625C11.625 1.29348 11.4933 0.975537 11.2589 0.741116C11.0245 0.506696 10.7065 0.375 10.375 0.375H1.625C1.29348 0.375 0.975537 0.506696 0.741116 0.741116C0.506696 0.975537 0.375 1.29348 0.375 1.625V4.4375C0.375422 4.63148 0.420789 4.82273 0.50754 4.99623C0.594292 5.16973 0.720068 5.32077 0.875 5.4375L4.95859 8.5L0.875 11.5625C0.720068 11.6792 0.594292 11.8303 0.50754 12.0038C0.420789 12.1773 0.375422 12.3685 0.375 12.5625V15.375C0.375 15.7065 0.506696 16.0245 0.741116 16.2589C0.975537 16.4933 1.29348 16.625 1.625 16.625H10.375C10.7065 16.625 11.0245 16.4933 11.2589 16.2589C11.4933 16.0245 11.625 15.7065 11.625 15.375V12.5906C11.6246 12.3974 11.5796 12.2069 11.4935 12.0338C11.4075 11.8608 11.2827 11.7099 11.1289 11.593L7.03672 8.5L11.1289 5.40625C11.2828 5.28952 11.4076 5.13882 11.4937 4.9659C11.5797 4.79298 11.6247 4.60252 11.625 4.40938ZM1.625 1.625H10.375V4.40938L9.92422 4.75H2.04141L1.625 4.4375V1.625ZM6 7.71875L3.70859 6H8.27109L6 7.71875ZM10.375 15.375H1.625V12.5625L5.375 9.75V11.625C5.375 11.7908 5.44085 11.9497 5.55806 12.0669C5.67527 12.1842 5.83424 12.25 6 12.25C6.16576 12.25 6.32473 12.1842 6.44194 12.0669C6.55915 11.9497 6.625 11.7908 6.625 11.625V9.75625L10.375 12.5906V15.375Z" fill="#B30738" />
@@ -436,7 +454,7 @@ const Sidebar = ({ Children }: { Children: ReactNode }) => {
                             {getSubTabs().map((tab) => (
                                 <Link
                                     key={tab.id}
-                                    href={`/waitingRoom/tabs/${currentTab}/${tab.id}`}
+                                    href={'/ComingSoon'}
                                     className={`flex items-center p-3 rounded-lg text-sm transition-colors ${pathname.includes(tab.id)
                                         ? 'bg-[#B30738]/10 text-[#B30738]'
                                         : 'hover:bg-gray-100 text-gray-700'

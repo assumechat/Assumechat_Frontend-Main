@@ -10,6 +10,8 @@ import { useDispatch, UseDispatch } from 'react-redux';
 import { setUser } from '@/store/slices/userSlice';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Link from 'next/link';
+import { useAppSelector } from '@/store/hooks';
 
 export default function HeroSection() {
     const reviewsRef = useRef<HTMLDivElement[]>([]);
@@ -17,15 +19,22 @@ export default function HeroSection() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const [isLogin, setIsLogin] = useState(true); // Add this state variable
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const router = useRouter();
     const passwordStrength = calculatePasswordStrength(password);
     const dispatch = useDispatch();
-
+    const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated);
+    const router = useRouter();
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push("/")
+        }
+    }, [isAuthenticated]);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
         if (!isLogin && password !== confirmPassword) {
             alert("Passwords don't match!");
             return;
@@ -60,6 +69,8 @@ export default function HeroSection() {
                 });
                 console.log(error);
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -424,19 +435,19 @@ export default function HeroSection() {
                                 type="submit"
                                 className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50"
                             >
-                                {isLogin ? 'Log In' : 'Sign Up'}
+                                {loading ? 'Loading...' : 'Sign In'}
                             </button>
                         </form>
 
                         <div className="mt-14 text-right">
                             <p className="text-gray-600">
                                 {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
-                                <a
-                                    href={isLogin ? '/signup' : '/signin'}
+                                <Link
+                                    href='/signup'
                                     className="text-[#B30738] hover:underline font-medium"
                                 >
                                     {isLogin ? 'Sign Up' : 'Sign In'}
-                                </a>
+                                </Link>
                             </p>
                         </div>
                     </div>
