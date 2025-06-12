@@ -1,6 +1,7 @@
 'use client';
-
-import { ReactNode, useEffect } from 'react';
+import FullScreenLoader from "@/components/ui/Loader";
+import { IconSquareRoundedX } from "@tabler/icons-react";
+import { ReactNode, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
@@ -11,12 +12,16 @@ import { FooterSection } from '@/components/Footer';
 export default function AppLayout({ children }: { children: ReactNode }) {
   const path = usePathname();
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const refreshToken = async () => {
       const token = localStorage.getItem('refreshToken');
 
-      if (!token) return;
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
         const response = await axios.post(
@@ -31,6 +36,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error('Refresh token error:', error);
         localStorage.removeItem('refreshToken');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -41,6 +48,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     return (
       <>
         <Header />
+        {isLoading && <FullScreenLoader />}
         {children}
         <FooterSection />
       </>
@@ -51,6 +59,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     return (
       <>
         <Header />
+        {isLoading && <FullScreenLoader />}
         {children}
       </>
     );
