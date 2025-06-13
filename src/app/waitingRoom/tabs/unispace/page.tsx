@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import axios from 'axios';
 import { useAppSelector } from '@/store/hooks';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export enum BurstStatus {
   TRUE = 'true',
@@ -23,18 +25,29 @@ type CardData = {
 
 export default function CardsPage() {
     const [cards, setCards] = useState<CardData[]>([]);
-    const user = useAppSelector((state) => state.user.user);
+    const user=useAppSelector((state)=> state.user.accessToken);
+    const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated);
+    const router = useRouter();
+
+    useEffect(()=>{
+        if(!isAuthenticated) {
+            router.push('/');
+            toast.error('User not found ,Please Sigin again',{
+                duration: 2000,
+            })
+        }
+    },[isAuthenticated]);
 
     //fetch feedbacks
     useEffect(()=>{
         const  fetchAllFeedbacks= async()=>{
          try{
-            if(!user?._id) return;
-            //console.log(user?._id);
+            if(!user) return;
+            console.log(user);
             const res= await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}feedback/get-feedback` , {
-                params: {
-                    userId: user?._id, 
-                },
+                headers: {
+                    Authorization: `Bearer ${user}`
+                }
             })
             const data= await res.data;
             console.log(data);
@@ -69,10 +82,17 @@ export default function CardsPage() {
 
     //handle burst
     const handleBurst= async (cardId: string)=>{
+        const id=cardId;
+        console.log(id);
         try{
             await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}feedback/burst-feedback` ,{
                 id: cardId,
-            });
+            },
+        {
+        headers: {
+          Authorization: `Bearer ${user}`,
+        },
+      });
             //updatd state
             setCards((prevCards)=>
                 prevCards.map((card) => 
@@ -101,6 +121,7 @@ export default function CardsPage() {
                             height: '100%',
                             touchAction: 'none',
                         }}
+
                     >
                         {/* Big relative container */}
                         <div
