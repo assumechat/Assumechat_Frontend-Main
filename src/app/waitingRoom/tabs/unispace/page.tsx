@@ -6,11 +6,7 @@ import axios from 'axios';
 import { useAppSelector } from '@/store/hooks';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-
-export enum BurstStatus {
-  TRUE = 'true',
-  FALSE = 'false',
-}
+import BurstStatus from '@/types/BurstStatus';
 
 type CardData = {
     id: string;
