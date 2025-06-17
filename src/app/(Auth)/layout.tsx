@@ -13,14 +13,9 @@ export default function Layout({
     children: React.ReactNode
 }) {
     const dispatch = useAppDispatch();
-    const router = useRouter();
+
     const matched = useAppSelector(s => s.socket.matched);
-    const user = useAppSelector((state) => state.user.user);
-    useEffect(() => {
-        if (user?._id) {
-            router.push("/")
-        }
-    }, [user])
+  
     return (
         <>
             <Header />

@@ -28,30 +28,29 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Link from "next/link";
 
-
 export default function HeroSection() {
     const reviewsRef = useRef<HTMLDivElement[]>([]);
     const iconsRef = useRef<HTMLDivElement[]>([]);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [otpLoading, setOtpLoading] = useState(false);
     const [name, setName] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [isLogin, setIsLogin] = useState(false); // Add this state variable
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [otp, setOtp] = useState('');
     const [otpSent, setOtpSent] = useState(false);
+    const [otpError, setOtpError] = useState('');
     const [otpArray, setOtpArray] = useState(["", "", "", "", "", ""]);
     const inputsRef = useRef<HTMLInputElement[]>([]);
     const [passwordError, setPasswordError] = useState("");
     const [passwordStrength, setPasswordStrength] = useState(0);
+    const [formError, setFormError] = useState('');
 
     const dispatch = useDispatch();
-    //const passwordStrength = calculatePasswordStrength(password);
     const router = useRouter();
 
-
-    //password
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
         const strength = calculatePasswordStrength(e.target.value);
@@ -66,96 +65,111 @@ export default function HeroSection() {
         else {
             setPasswordError("");
         }
-
     }
 
-
     const handleChange = (index: number, value: string) => {
-        if (!/^[0-9]?$/.test(value)) return; // Only allow single digit
+        if (!/^[0-9]?$/.test(value)) return;
 
         const updatedOtp = [...otpArray];
         updatedOtp[index] = value;
         setOtpArray(updatedOtp);
         setOtp(updatedOtp.join(""));
+        setOtpError('');
 
         if (value && index < 5) {
-            inputsRef.current[index + 1]?.focus(); // Move to next input
+            inputsRef.current[index + 1]?.focus();
         }
     };
 
     const handleBackspace = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Backspace" && !otpArray[index] && index > 0) {
-            inputsRef.current[index - 1]?.focus(); // Go back
+            inputsRef.current[index - 1]?.focus();
+        }
+    };
+
+    const sendOtp = async () => {
+        setOtpLoading(true);
+        setFormError('');
+
+        try {
+            // First check if email exists
+            const checkEmailUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/check-email`;
+            await axios.post(checkEmailUrl, { email });
+
+            // If email doesn't exist, send OTP
+            const otpUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/request-otp`;
+            if (!otpUrl) throw new Error("OTP REQUEST URL not defined");
+
+            const response = await axios.post(otpUrl, { email });
+            if (response.data.success) {
+                setOtpSent(true);
+                toast.success('OTP sent to your email.');
+            } else {
+                throw new Error('Failed to send OTP');
+            }
+        } catch (error: any) {
+            console.error("Error sending OTP:", error);
+            if (error?.response?.status === 409) {
+                setFormError('Email already exists');
+                toast.error('Email already exists');
+            } else {
+                setFormError(error?.response?.data?.message || 'Error sending OTP');
+                toast.error(error?.response?.data?.message || 'Error sending OTP');
+            }
+        } finally {
+            setOtpLoading(false);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (isLogin) {
-            try {
-                const loginUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/signup`
-                if (!loginUrl) throw new Error("LOGIN URL not defined");
-                const res = await axios.post(loginUrl, { email, password });
-                localStorage.setItem("refreshToken", res.data.refreshToken);
-                dispatch(
-                    setUser({
-                        accessToken: res.data.accessToken,
-                        user: res.data.user,
-                    })
-                );
-                //alert("Login Successful!");
-                toast.success('Login Successful!');
-                router.push("/waitingRoom");
-            } catch (error: any) {
-                toast.error(error?.response?.data?.message || 'Something went wrong');
-                console.log("error during regis", error);
-            }
-            return;
-        }
 
-        // If signup
+        // First step - validate and send OTP
         if (!otpSent) {
-            try {
-                const checkEmailUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/check-email`;
-                const checkRes = await axios.post(checkEmailUrl, { email });
+            // Validate form before sending OTP
+            if (!name || !email || !password || !confirmPassword) {
+                setFormError('All fields are required');
+                return;
             }
-            catch (error: any) {
-                if (error?.response?.status === 409) {
-                    toast.error('Email already exists');
-                    return;
-                }
-            }
-            try {
-                const otpUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/request-otp`
-                if (!otpUrl) throw new Error("OTP REQUEST URL not defined");
 
-                const response = await axios.post(otpUrl, { email });
-                if (response.data.success) {
-                    setOtpSent(true);
-                    toast.success('OTP sent to your email.');
-                } else {
-                    toast.error('Failed to send OTP.');
-
-                }
-            } catch (error: any) {
-                console.error("Error sending OTP:", error);
-                toast.error('Error sending OTP');
+            if (password !== confirmPassword) {
+                setFormError("Passwords don't match");
+                return;
             }
+
+            if (passwordError) {
+                setFormError(passwordError);
+                return;
+            }
+
+            await sendOtp();
             return;
         }
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,}$/;
-        if (!passwordRegex.test(password)) {
-            toast.error('Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
-        }
-        // Check password match
-        if (password !== confirmPassword) {
-            toast.error('password dost not match');
+
+        // Second step - validate OTP and complete registration
+        setLoading(true);
+        setFormError('');
+
+        // Validate OTP
+        if (otp.length !== 6) {
+            setOtpError('Please enter a valid 6-digit OTP');
+            setLoading(false);
             return;
         }
-        // Final Signup (after OTP sent)
+
         try {
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                throw new Error('Password must be at least 8 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
+            }
+
+            if (password !== confirmPassword) {
+                throw new Error('Passwords do not match');
+            }
+
             const signupUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}Auth/signup`;
             if (!signupUrl) throw new Error("SIGNUP URL not defined");
+
             const res = await axios.post(signupUrl, {
                 name, email, password, code: otp,
             });
@@ -167,14 +181,27 @@ export default function HeroSection() {
                     user: res.data.data.user,
                 })
             );
-            toast.success('Signup Successfully Redirecting To Get Started ', {
+
+            toast.success('Signup Successful. Redirecting...', {
                 duration: 2000,
-            })
+            });
+
             router.push("/getStarted");
         } catch (error: any) {
-            toast.error(error?.response?.data?.message || "Signup failed");
+            console.error("Signup error:", error);
+            const errorMsg = error?.response?.data?.message || error.message || "Signup failed";
+            setFormError(errorMsg);
+
+            if (error?.response?.status === 400) {
+                setOtpError('Invalid OTP. Please try again.');
+            }
+
+            toast.error(errorMsg);
+        } finally {
+            setLoading(false);
         }
     };
+
 
 
     useEffect(() => {
@@ -409,7 +436,7 @@ export default function HeroSection() {
                         <div className="text-center mb-8">
                             <h1 className="text-3xl font-bold text-black mb-2">Welcome Back!</h1>
                             <p className="text-gray-500">
-                                {isLogin ? 'Already One of Us? Let’s Get You Back In.' : 'Sign Up and Let the Conversations Find You.'}
+                                Sign Up and Let the Conversations Find You.
                             </p>
                         </div>
 
@@ -429,9 +456,8 @@ export default function HeroSection() {
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         className="block w-full pl-10 pr-3 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:border-transparent"
-                                        placeholder="student name"
+                                        placeholder="Username "
                                         required
-                                        disabled={isLogin}
                                     />
                                 </div>
                                 {/* Email Input */}
@@ -471,7 +497,6 @@ export default function HeroSection() {
                                         className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:border-transparent"
                                         placeholder="At least 8 characters"
                                         required
-                                    // minLength={8}
                                     />
                                     <button
                                         type="button"
@@ -513,52 +538,71 @@ export default function HeroSection() {
                                 </div>
                             </div>
 
-                            {/* Confirm Password (only for signup) */}
-                            {!isLogin && (
-                                <div>
-                                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-black mb-1">
-                                        Confirm Password
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <FiLock color='#B30738' className="text-[#B30738]" />
-                                        </div>
-                                        <input
-                                            type={showConfirmPassword ? 'text' : 'password'}
-                                            id="confirmPassword"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:border-transparent"
-                                            placeholder="At least 8 characters"
-                                            required
-                                            minLength={8}
-                                        />
-                                        <button
-                                            type="button"
-                                            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            tabIndex={-1}
-                                        >
-                                            {showConfirmPassword ? (
-                                                <FiEyeOff className="text-gray-400 hover:text-gray-600" />
-                                            ) : (
-                                                <FiEye className="text-gray-400 hover:text-gray-600" />
-                                            )}
-                                        </button>
+                            {/* Confirm Password */}
+                            <div>
+                                <label htmlFor="confirmPassword" className="block text-sm font-medium text-black mb-1">
+                                    Confirm Password
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <FiLock color='#B30738' className="text-[#B30738]" />
                                     </div>
-                                    {confirmPassword.length > 0 && password !== confirmPassword && (
-                                        <p className="mt-1 text-xs text-red-500">Passwords don't match</p>
-                                    )}
+                                    <input
+                                        type={showConfirmPassword ? 'text' : 'password'}
+                                        id="confirmPassword"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:border-transparent"
+                                        placeholder="At least 8 characters"
+                                        required
+                                        minLength={8}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        tabIndex={-1}
+                                    >
+                                        {showConfirmPassword ? (
+                                            <FiEyeOff className="text-gray-400 hover:text-gray-600" />
+                                        ) : (
+                                            <FiEye className="text-gray-400 hover:text-gray-600" />
+                                        )}
+                                    </button>
                                 </div>
+                                {confirmPassword.length > 0 && password !== confirmPassword && (
+                                    <p className="mt-1 text-xs text-red-500">Passwords don't match</p>
+                                )}
+                            </div>
+
+                            {/* Form error message */}
+                            {formError && (
+                                <p className="text-red-500 text-sm text-center">{formError}</p>
                             )}
-                            {/*submit btn*/}
-                            <button type="submit" className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50">
-                                {isLogin ? "Login" : otpSent ? "Submit & Register" : "Send OTP"}
+
+                            {/* Submit button */}
+                            <button
+                                type="submit"
+                                disabled={
+                                    passwordError.length > 0 ||
+                                    password !== confirmPassword ||
+                                    loading ||
+                                    otpLoading
+                                }
+                                className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50 disabled:opacity-70 disabled:cursor-not-allowed"
+                            >
+                                {otpLoading ? (
+                                    'Sending OTP...'
+                                ) : otpSent ? (
+                                    loading ? 'Registering...' : 'Submit & Register'
+                                ) : (
+                                    'Send OTP'
+                                )}
                             </button>
                         </form>
                         <div className="mt-14 text-right">
                             <p className="text-gray-600">
-                                {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
+                                Already have an account?
                                 <Link
                                     href="/signin"
                                     className="text-[#B30738] hover:underline font-medium"
@@ -570,7 +614,7 @@ export default function HeroSection() {
                     </div>
                 </div>
             </div>
-            {/* OTP Input show when OTP is sent) */}
+            {/* OTP Dialog */}
             {otpSent && (
                 <Dialog open={otpSent} onOpenChange={open => { if (!open) setOtpSent(false); }}>
                     <DialogContent>
@@ -580,6 +624,7 @@ export default function HeroSection() {
                                 Please enter the 6-digit OTP sent to your email.
                             </DialogDescription>
                         </DialogHeader>
+
                         <div className="flex space-x-2 justify-center my-4">
                             {otpArray.map((digit, index) => (
                                 <Input
@@ -596,12 +641,14 @@ export default function HeroSection() {
                                     autoFocus={index === 0}
                                 />
                             ))}
+
                         </div>
                         <button
-                            className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50"
+                            className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50 disabled:opacity-70 disabled:cursor-not-allowed"
                             onClick={handleSubmit}
+                            disabled={loading || otp.length !== 6}
                         >
-                            Submit & Register
+                            {loading ? 'Registering...' : 'Submit & Register'}
                         </button>
                     </DialogContent>
                 </Dialog>

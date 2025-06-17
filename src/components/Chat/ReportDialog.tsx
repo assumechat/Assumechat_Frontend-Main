@@ -28,7 +28,7 @@ const ReportDialog: React.FC<ReportDialogProps> = ({
 }) => {
   return (
     <Dialog open={showReportModal} onOpenChange={setShowReportModal}>
-      <DialogContent className="fixed right-0 mt-10 h-[80vh] w-full max-w-4xl bg-white rounded-l-xl p-6 shadow-lg overflow-y-auto">
+      <DialogContent className="fixed right-0 mt-10 md:min-w-xl h-[80vh] w-full max-w-4xl bg-white rounded-l-xl p-6 shadow-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold text-black mb-2 text-center">
             Report {peerInfo.userName}
