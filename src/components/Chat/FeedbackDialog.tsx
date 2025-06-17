@@ -55,7 +55,7 @@ const FeedbackDialog: React.FC<FeedbackDialogProps> = ({
                     {/* Star Rating */}
                     <div className="flex items-center gap-2 mt-2">
                         <span className="text-sm text-gray-700">Rate them:</span>
-                        {[1, 2, 3, 4, 5].map((star) => (
+                        {[1, 2, 3].map((star) => (
                             <FaStar
                                 key={star}
                                 size={20}
