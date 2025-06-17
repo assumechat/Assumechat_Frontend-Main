@@ -2,6 +2,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import axios from 'axios';
+import { useAppSelector } from '@/store/hooks';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import BurstStatus from '@/types/BurstStatus';
 
 type CardData = {
     id: string;
@@ -10,32 +15,90 @@ type CardData = {
     stars: number;
     x: number;
     y: number;
+    isBurst: BurstStatus; 
 };
+
 
 export default function CardsPage() {
     const [cards, setCards] = useState<CardData[]>([]);
+    const user=useAppSelector((state)=> state.user.accessToken);
+    const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated);
+    const router = useRouter();
 
-    useEffect(() => {
-        // how many cards?
-        const count = 12; // pick between 10–15
-        // size of our “canvas”
-        const canvasWidth = 1000;
-        const canvasHeight = 1000;
-        // approximate card size (for edge padding)
-        const cardW = 240;
-        const cardH = 160;
+    useEffect(()=>{
+        if(!isAuthenticated) {
+            router.push('/');
+            toast.error('User not found ,Please Sigin again',{
+                duration: 2000,
+            })
+        }
+    },[isAuthenticated]);
 
-        const gen: CardData[] = Array.from({ length: count }, (_, i) => ({
-            id: String(i),
-            quote: `“Random quote #${i + 1}”`,
-            author: `– Author ${i + 1}`,
-            stars: Math.ceil(Math.random() * 5),
-            x: Math.random() * (canvasWidth - cardW),
-            y: Math.random() * (canvasHeight - cardH),
-        }));
+    //fetch feedbacks
+    useEffect(()=>{
+        const  fetchAllFeedbacks= async()=>{
+         try{
+            if(!user) return;
+            console.log(user);
+            const res= await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}feedback/get-feedback` , {
+                headers: {
+                    Authorization: `Bearer ${user}`
+                }
+            })
+            const data= await res.data;
+            console.log(data);
+            if(data.success && Array.isArray(data.data))
+            {
+                // size of our “canvas”
+                const canvasWidth = 1000;
+                const canvasHeight = 1000;
+               // approximate card size (for edge padding)
+                const cardW = 240;
+                const cardH = 160;
 
-        setCards(gen);
-    }, []);
+                const mapCards=data.data
+                .slice(0, 30) //latest 30
+                .map((item:any , index: number)=> ({
+                    id:item._id,
+                    quote: item.comment,
+                    stars:item.rating,
+                    isBurst: item.isBurst === 'true' ? BurstStatus.TRUE : BurstStatus.FALSE,
+                    x: Math.random()*(canvasWidth - cardW),
+                    y: Math.random()*(canvasHeight - cardH),
+                }));
+                setCards(mapCards);
+            }
+        }
+         catch(error: any){
+            console.log("Error fetching cards:" , error);
+        }
+      };
+        fetchAllFeedbacks();
+    },[user]);
+
+    //handle burst
+    const handleBurst= async (cardId: string)=>{
+        const id=cardId;
+        console.log(id);
+        try{
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}feedback/burst-feedback` ,{
+                id: cardId,
+            },
+        {
+        headers: {
+          Authorization: `Bearer ${user}`,
+        },
+      });
+            //updatd state
+            setCards((prevCards)=>
+                prevCards.map((card) => 
+                card.id ===cardId ? { ...card , isBurst: BurstStatus.TRUE} : card)
+            )
+        }
+        catch(err: any){
+            console.log("Error bursting assumption" , err);
+        }
+    };
 
     return (
         <div className="w-screen h-screen">
@@ -54,6 +117,7 @@ export default function CardsPage() {
                             height: '100%',
                             touchAction: 'none',
                         }}
+
                     >
                         {/* Big relative container */}
                         <div
@@ -63,7 +127,11 @@ export default function CardsPage() {
                             {cards.map((card) => (
                                 <div
                                     key={card.id}
-                                    className="absolute flex justify-start border border-black bg-white bg-opacity-80 backdrop-blur-md p-4 rounded-lg shadow-lg transition-transform duration-300"
+                                    className={`absolute flex flex-col justify-between border border-black p-4 rounded-lg shadow-lg transition-all duration-300 ${
+                                    card.isBurst === BurstStatus.TRUE
+                                    ? 'bg-gray-300 opacity-30 blur-[2px] pointer-events-none'
+                                    : 'bg-white bg-opacity-80 backdrop-blur-md'
+                                    }`}
                                     style={{
                                         width: 240,
                                         // note: w-60 ≈ 240px
@@ -88,7 +156,7 @@ export default function CardsPage() {
                                     </div>
 
                                     <div>
-                                        <p className="text-black font-semibold text-md mt-1">
+                                        <p className="text-black font-bold text-md mt-1">
                                             {card.quote}
                                         </p>
                                         <p className="text-gray-600 text-sm mt-1">
@@ -128,6 +196,13 @@ export default function CardsPage() {
                                                 ))}
                                         </div>
                                     </div>
+                                    {/*only show burst button if it is not already bursted*/}
+                                    {card.isBurst===BurstStatus.FALSE && (
+                                        <button onClick={()=>handleBurst(card.id)}
+                                        className="mt-2 bg-[#B30738]  text-white px-3 py-1 rounded hover:bg-[#B30738] transition">
+                                            Burst this Assumption
+                                        </button>
+                                    )}
                                 </div>
                             ))}
                         </div>
