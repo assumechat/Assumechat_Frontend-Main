@@ -624,6 +624,7 @@ export default function HeroSection() {
                                 Please enter the 6-digit OTP sent to your email.
                             </DialogDescription>
                         </DialogHeader>
+<<<<<<< HEAD
                         <div className="space-y-6">
                             <InputOTP
                                 maxLength={6}
@@ -654,6 +655,24 @@ export default function HeroSection() {
                                     <>You entered: {otp}</>
                                 )}
                             </div>
+=======
+                        <div className="flex space-x-2 justify-center my-4">
+                            {otpArray.map((digit, index) => (
+                                <Input
+                                    key={index}
+                                    ref={(el) => {
+                                        inputsRef.current[index] = el!;
+                                    }}
+                                    type="text"
+                                    value={digit}
+                                    onChange={(e) => handleChange(index, e.target.value)}
+                                    onKeyDown={(e) => handleBackspace(index, e)}
+                                    maxLength={1}
+                                    className="w-8 h-8 sm:w-10 sm:h-10 text-center text-base sm:text-lg border border-gray-300 rounded-md focus:ring-[#B30738] focus:border-[#B30738]"
+                                    autoFocus={index === 0}
+                                />
+                            ))}
+>>>>>>> responsive-ui
                         </div>
                         <button
                             className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50 disabled:opacity-70 disabled:cursor-not-allowed"
