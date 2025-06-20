@@ -189,7 +189,7 @@ const ChatSystem = () => {
 
 
   return (
-    <div className="flex flex-col md:mt-20 h-full rounded-2xl border-4 bg-gray-200">
+    <div className="flex flex-col md:mt-20 mt-40 h-full rounded-2xl border-4 bg-gray-200">
       {/* Top Bar - Sticky */}
       {isMatching && <>
         <div className="flex flex-col items-center justify-center h-full pt-24">
@@ -217,7 +217,7 @@ const ChatSystem = () => {
       }
       {!isMatching &&
         <>
-          <div className="sticky top-0 z-10 m-4 p-4 bg-white rounded-3xl flex items-center justify-between border-b border-gray-300">
+          <div className="sticky top-0 z-10 m-4 mt-40 p-4 bg-white rounded-3xl flex items-center justify-between border-b border-gray-300">
             <div className="flex items-center space-x-3">
               {peerInfo && (
                 <>

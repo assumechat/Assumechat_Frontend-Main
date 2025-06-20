@@ -625,22 +625,96 @@ export default function HeroSection() {
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div className="flex space-x-2 justify-center my-4">
-                            {otpArray.map((digit, index) => (
-                                <Input
-                                    key={index}
-                                    ref={(el) => {
-                                        inputsRef.current[index] = el!;
-                                    }}
-                                    type="text"
-                                    value={digit}
-                                    onChange={(e) => handleChange(index, e.target.value)}
-                                    onKeyDown={(e) => handleBackspace(index, e)}
-                                    maxLength={1}
-                                    className="w-8 h-8 sm:w-10 sm:h-10 text-center text-base sm:text-lg border border-gray-300 rounded-md focus:ring-[#B30738] focus:border-[#B30738]"
-                                    autoFocus={index === 0}
-                                />
-                            ))}
+                        <div className="space-y-6">
+                            Add comment
+                            More actions
+
+
+                            <InputOTP
+
+
+                                maxLength={6}
+
+
+                                value={otp}
+
+
+                                onChange={(value) => {
+
+
+                                    setOtp(value);
+
+
+                                    setOtpArray(value.split(""));
+
+
+                                    setOtpError('');
+
+
+                                }}
+
+
+                            >
+
+
+                                <InputOTPGroup>
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={0} />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={1} />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={2} />
+
+
+                                    <InputOTPSeparator />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={3} />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={4} />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={5} />
+
+
+                                </InputOTPGroup>
+
+
+                            </InputOTP>
+
+
+                            {otpError && (
+
+
+                                <p className="text-red-500 text-sm text-center">{otpError}</p>
+
+
+                            )}
+
+
+                            <div className="text-center text-sm">
+
+
+                                {otp === "" ? (
+
+
+                                    <>Enter your one-time password.</>
+
+
+                                ) : (
+
+
+                                    <>You entered: {otp}</>
+
+
+                                )}
+
+
+                            </div>
 
                         </div>
                         <button
