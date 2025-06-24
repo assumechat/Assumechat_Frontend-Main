@@ -13,7 +13,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useState, ReactNode, Children } from "react";
+import React, { useState, ReactNode } from "react";
 import { FiMenu, FiUser, FiX } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { useDisclosure } from "@chakra-ui/react";
@@ -29,14 +29,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "@/lib/logout";
 import { logout } from "@/store/slices/userSlice";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import ProfileDropdown from "../Header/ProfileDropdown";
 import { UserState } from "@/types/userstate";
 
 const Header = () => {
@@ -145,41 +138,7 @@ const Header = () => {
           {isAuthenticated ? (
             <div className="flex items-center gap-2 lg:gap-8">
               {/* Profile Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="relative h-10 w-10 rounded-full bg-gradient-to-tr from-[#B30738] to-[#ff6f98] flex items-center justify-center shadow-md hover:scale-105 transition-transform focus:outline-none">
-                    <span className="absolute inset-0 rounded-full border-2 border-white opacity-60"></span>
-                    <User className="h-5 w-5 text-white z-10" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Link className="w-full" href={"/ComingSoon"}>
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link className="w-full" href="/Request">
-                      Feature Request
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link className="w-full" href="/Request">
-                      Bug Report
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Link className="w-full" href={"/"}>
-                      Log Out
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <ProfileDropdown user={user} onLogout={handleLogout} />
             </div>
           ) : (
             <button
@@ -342,11 +301,33 @@ const Header = () => {
                         </span>
                       </div>
                       <Link
+                        href="/Request"
+                        className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Feature Request
+                      </Link>
+                      <Link
+                        href="/Request"
+                        className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Bug Report
+                      </Link>
+                      <Link
                         href="/ComingSoon"
                         className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Profile
+                      </Link>
+
+                      <Link
+                        href="/"
+                        className="block py-2 px-4 text-[#B30738] hover:text-gray-800 hover:bg-gray-100"
+                        onClick={handleLogout}
+                      >
+                        Logout
                       </Link>
                     </div>
                   </>

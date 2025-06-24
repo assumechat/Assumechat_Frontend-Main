@@ -77,7 +77,7 @@ export default function MobileNavigation({
                         <Link
                           key={label}
                           href={href}
-                          className="block py-1 text-sm text-gray-700 hover:text-[#B30738]"
+                          className="block py-2 text-sm text-gray-700 hover:text-[#B30738]"
                           onClick={onMenuClose}
                         >
                           {label}
@@ -114,6 +114,20 @@ export default function MobileNavigation({
               >
                 Profile
               </Link>
+              <Link
+                href="/Request"
+                className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
+                onClick={onMenuClose}
+              >
+                Feature Request
+              </Link>
+              <Link
+                href="/Request"
+                className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
+                onClick={onMenuClose}
+              >
+                Bug Report
+              </Link>
             </div>
           </>
         )}
@@ -132,6 +146,7 @@ export default function MobileNavigation({
                   Explore
                 </button>
               )}
+
               <button
                 onClick={() => {
                   onLogout();

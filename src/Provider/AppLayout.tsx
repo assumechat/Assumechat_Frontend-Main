@@ -66,5 +66,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     );
   }
 
+  if (path === "/OurTeam" || path === "/Request") {
+    return (
+      <>
+        <Header />
+        {children}
+      </>
+    );
+  }
   return <>{children}</>;
 }
