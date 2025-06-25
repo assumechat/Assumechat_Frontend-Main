@@ -94,6 +94,20 @@ export default function MobileNavigation({
         {isAuthenticated && (
           <>
             {/* Mobile Profile Section */}
+            <Link
+              href="/Request"
+              className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
+              onClick={onMenuClose}
+            >
+              Feature Request
+            </Link>
+            <Link
+              href="/Request"
+              className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
+              onClick={onMenuClose}
+            >
+              Bug Report
+            </Link>
             <div className="border-t border-gray-200 pt-4 mt-4">
               <div className="flex items-center space-x-3 px-4 py-2">
                 <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-200">
@@ -113,20 +127,6 @@ export default function MobileNavigation({
                 onClick={onMenuClose}
               >
                 Profile
-              </Link>
-              <Link
-                href="/Request"
-                className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
-                onClick={onMenuClose}
-              >
-                Feature Request
-              </Link>
-              <Link
-                href="/Request"
-                className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
-                onClick={onMenuClose}
-              >
-                Bug Report
               </Link>
             </div>
           </>

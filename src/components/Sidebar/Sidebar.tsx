@@ -38,10 +38,9 @@ const Header = () => {
   const { position, waiting, online } = useAppSelector((s) => s.socket);
   const pathname = usePathname();
   const user = useSelector((state: { user: UserState }) => state.user.user);
-  const isInWaitingRoom = pathname === "/waitingRoom";
 
   const isAuthenticated = useSelector(
-    (state: { user: any }) => state.user.isAuthenticated
+    (state: { user: UserState }) => state.user.isAuthenticated
   );
   const isActive = (href: string) => pathname === href;
   const currentTab = pathname.split("/")[3] || "reels";
@@ -285,6 +284,20 @@ const Header = () => {
                 </div>
                 {isAuthenticated ? (
                   <>
+                    <Link
+                      href="/Request"
+                      className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Feature Request
+                    </Link>
+                    <Link
+                      href="/Request"
+                      className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Bug Report
+                    </Link>
                     {/* Mobile Profile Section */}
                     <div className="border-t border-gray-200 pt-4 mt-4">
                       <div className="flex items-center space-x-3 px-4 py-2">
@@ -300,20 +313,7 @@ const Header = () => {
                           {user?.name || "User"}
                         </span>
                       </div>
-                      <Link
-                        href="/Request"
-                        className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Feature Request
-                      </Link>
-                      <Link
-                        href="/Request"
-                        className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Bug Report
-                      </Link>
+
                       <Link
                         href="/ComingSoon"
                         className="block py-2 px-4 text-gray-700 hover:text-[#B30738]"
