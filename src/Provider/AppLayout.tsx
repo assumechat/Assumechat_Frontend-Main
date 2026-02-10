@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/store/slices/userSlice";
-import Header from "@/components/Header/Header";
+import Header from "@/components/Header";
 import { FooterSection } from "@/components/Footer";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
