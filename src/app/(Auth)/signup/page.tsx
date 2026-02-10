@@ -817,52 +817,109 @@ export default function HeroSection() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-6">
-              <InputOTP
-                maxLength={6}
-                value={otp}
-                onChange={(value) => {
-                  setOtp(value);
-                  setOtpArray(value.split(""));
-                  setOtpError("");
-                }}
-              >
-                <InputOTPGroup>
-                  <InputOTPSlot className="h-14 text-xl w-14" index={0} />
+                        <div className="space-y-6">
+                            Add comment
+                            More actions
 
-                  <InputOTPSlot className="h-14 text-xl w-14" index={1} />
 
-                  <InputOTPSlot className="h-14 text-xl w-14" index={2} />
+                            <InputOTP
 
-                  <InputOTPSlot className="h-14 text-xl w-14" index={3} />
 
-                  <InputOTPSlot className="h-14 text-xl w-14" index={4} />
+                                maxLength={6}
 
-                  <InputOTPSlot className="h-14 text-xl w-14" index={5} />
-                </InputOTPGroup>
-              </InputOTP>
-              {otpError && (
-                <p className="text-red-500 text-sm text-center">{otpError}</p>
-              )}
-              <div className="text-center text-sm">
-                {otp === "" ? (
-                  <>Enter your one-time password.</>
-                ) : (
-                  <>You entered: {otp}</>
-                )}
-              </div>
-            </div>
-            <button
-              className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50 disabled:opacity-70 disabled:cursor-not-allowed"
-              onClick={handleSubmit}
-              disabled={loading || otp.length !== 6}
-            >
-              {loading ? "Registering..." : "Submit & Register"}
-            </button>
-          </DialogContent>
-        </Dialog>
-      )}
-    </>
-  );
+
+                                value={otp}
+
+
+                                onChange={(value) => {
+
+
+                                    setOtp(value);
+
+
+                                    setOtpArray(value.split(""));
+
+
+                                    setOtpError('');
+
+
+                                }}
+
+
+                            >
+
+
+                                <InputOTPGroup>
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={0} />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={1} />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={2} />
+
+
+                                    <InputOTPSeparator />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={3} />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={4} />
+
+
+                                    <InputOTPSlot className="h-14 text-xl w-14" index={5} />
+
+
+                                </InputOTPGroup>
+
+
+                            </InputOTP>
+
+
+                            {otpError && (
+
+
+                                <p className="text-red-500 text-sm text-center">{otpError}</p>
+
+
+                            )}
+
+
+                            <div className="text-center text-sm">
+
+
+                                {otp === "" ? (
+
+
+                                    <>Enter your one-time password.</>
+
+
+                                ) : (
+
+
+                                    <>You entered: {otp}</>
+
+
+                                )}
+
+
+                            </div>
+
+                        </div>
+                        <button
+                            className="w-full bg-[#B30738] text-white py-2 px-4 rounded-md hover:bg-[#9a0630] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#B30738] focus:ring-opacity-50 disabled:opacity-70 disabled:cursor-not-allowed"
+                            onClick={handleSubmit}
+                            disabled={loading || otp.length !== 6}
+                        >
+                            {loading ? 'Registering...' : 'Submit & Register'}
+                        </button>
+                    </DialogContent>
+                </Dialog>
+            )}
+        </>
+    );
 }
 

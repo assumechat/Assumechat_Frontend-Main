@@ -56,23 +56,20 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (path === "/waitingRoom") {
+  if (path === '/chatscreen' || path === '/leaderboard' || path === '/profile') {
     return (
       <>
-        <Header />
         {isLoading && <FullScreenLoader />}
         {children}
       </>
     );
   }
 
-  if (path === "/OurTeam" || path === "/Request") {
-    return (
-      <>
-        <Header />
-        {children}
-      </>
-    );
-  }
-  return <>{children}</>;
+  return (
+    <>
+      <Header />
+      {isLoading && <FullScreenLoader />}
+      {children}
+    </>
+    )  
 }

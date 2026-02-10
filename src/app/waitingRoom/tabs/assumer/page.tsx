@@ -330,7 +330,11 @@ const ChatSystem = () => {
   ];
 
   return (
+<<<<<<< HEAD
+    <div className="flex flex-col md:mt-20 mt-40 h-full rounded-2xl border-4 bg-gray-200">
+=======
     <div className="flex flex-col md:mt-20 h-screen rounded-2xl border-4 bg-gray-200">
+>>>>>>> f8509e39b933f99f54d955dca59e1aeab5d4068f
       {/* Top Bar - Sticky */}
       <div className="sticky top-22 md:top-0 z-10 m-4 p-4 bg-white rounded-3xl flex items-center justify-between border-b border-gray-300">
         <div className="flex items-center space-x-3">
@@ -368,7 +372,46 @@ const ChatSystem = () => {
             <FiInfo color="#B30738" size={20} />
           </button>
         </div>
+<<<<<<< HEAD
+      </>
+      }
+      {!isMatching &&
+        <>
+          <div className="sticky top-0 z-10 m-4 mt-40 p-4 bg-white rounded-3xl flex items-center justify-between border-b border-gray-300">
+            <div className="flex items-center space-x-3">
+              {peerInfo && (
+                <>
+                  <div className="h-12 w-12 rounded-full overflow-hidden">
+                    <Image
+                      src="https://res.cloudinary.com/dipywb0lr/image/upload/v1746702005/image_qkwdzs.jpg"
+                      alt="User avatar"
+                      width={100}
+                      height={100}
+                      className="object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-[#B30738]">{peerInfo.userName ?? peerInfo.userId}</h2>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleSkip}
+                disabled={isMatching}
+                className="p-2 border-[#B30738] border-1 rounded-xl text-gray-600 hover:text-gray-900"
+              >
+                <LogOutIcon color='#B30738' size={20} />
+              </button>
+              <button onClick={() => setShowReportModal(true)} className="p-2 border-[#B30738] border-1 rounded-xl text-gray-600 hover:text-gray-900">
+                <FiInfo color='#B30738' size={20} />
+              </button>
+            </div>
+          </div>
+=======
       </div>
+>>>>>>> f8509e39b933f99f54d955dca59e1aeab5d4068f
 
       {/* Chat Area - Flexible Space */}
       <div className="flex-1 overflow-y-auto p-6 pb-32">
