@@ -156,7 +156,7 @@ const ChatSystem = () => {
       if (axios.isAxiosError(error)) {
         toast.error(
           error.response?.data?.message ||
-            "Failed to submit report. Please try again."
+          "Failed to submit report. Please try again."
         );
       } else {
         toast.error("Failed to submit report. Please try again.");
@@ -330,11 +330,7 @@ const ChatSystem = () => {
   ];
 
   return (
-<<<<<<< HEAD
     <div className="flex flex-col md:mt-20 mt-40 h-full rounded-2xl border-4 bg-gray-200">
-=======
-    <div className="flex flex-col md:mt-20 h-screen rounded-2xl border-4 bg-gray-200">
->>>>>>> f8509e39b933f99f54d955dca59e1aeab5d4068f
       {/* Top Bar - Sticky */}
       <div className="sticky top-22 md:top-0 z-10 m-4 p-4 bg-white rounded-3xl flex items-center justify-between border-b border-gray-300">
         <div className="flex items-center space-x-3">
@@ -372,9 +368,7 @@ const ChatSystem = () => {
             <FiInfo color="#B30738" size={20} />
           </button>
         </div>
-<<<<<<< HEAD
-      </>
-      }
+      </div>
       {!isMatching &&
         <>
           <div className="sticky top-0 z-10 m-4 mt-40 p-4 bg-white rounded-3xl flex items-center justify-between border-b border-gray-300">
@@ -409,9 +403,8 @@ const ChatSystem = () => {
               </button>
             </div>
           </div>
-=======
-      </div>
->>>>>>> f8509e39b933f99f54d955dca59e1aeab5d4068f
+        </>
+      }
 
       {/* Chat Area - Flexible Space */}
       <div className="flex-1 overflow-y-auto p-6 pb-32">
@@ -420,16 +413,14 @@ const ChatSystem = () => {
           {messages.map((m, idx) => (
             <div
               key={m.timestamp}
-              className={`flex ${
-                m.peerId === matchedState?.peer
-                  ? "justify-end"
-                  : "justify-start"
-              }`}
+              className={`flex ${m.peerId === matchedState?.peer
+                ? "justify-end"
+                : "justify-start"
+                }`}
             >
               <div
-                className={`flex items-start max-w-xs md:max-w-md lg:max-w-lg ${
-                  m.peerId === matchedState?.peer ? "flex-row-reverse" : ""
-                }`}
+                className={`flex items-start max-w-xs md:max-w-md lg:max-w-lg ${m.peerId === matchedState?.peer ? "flex-row-reverse" : ""
+                  }`}
               >
                 <div className="flex-shrink-0 h-8 w-8 rounded-full overflow-hidden">
                   <Image
@@ -445,11 +436,10 @@ const ChatSystem = () => {
                   />
                 </div>
                 <div
-                  className={`mx-2 px-4 py-2 rounded-lg ${
-                    m.peerId === matchedState?.peer
-                      ? "bg-[#B30738] text-white rounded-tr-none"
-                      : "bg-white text-gray-800 rounded-tl-none border border-gray-200"
-                  }`}
+                  className={`mx-2 px-4 py-2 rounded-lg ${m.peerId === matchedState?.peer
+                    ? "bg-[#B30738] text-white rounded-tr-none"
+                    : "bg-white text-gray-800 rounded-tl-none border border-gray-200"
+                    }`}
                 >
                   {m.content}
                 </div>
