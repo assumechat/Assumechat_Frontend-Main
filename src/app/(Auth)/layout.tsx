@@ -12,7 +12,7 @@ export default function Layout({
 }: {
     children: React.ReactNode
 }) {
-    const dispatch = useAppDispatch();
+   
 
     const matched = useAppSelector(s => s.socket.matched);
   
