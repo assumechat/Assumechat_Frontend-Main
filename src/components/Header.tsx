@@ -1,27 +1,25 @@
 'use client';
 import { UserState } from '@/types/userstate';
-import { RootState } from '@reduxjs/toolkit/query';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
 import { useRouter } from 'next/navigation';
-import { useDispatch } from 'react-redux';
 import { logoutUser } from '@/lib/logout';
 import { logout } from '@/store/slices/userSlice';
+import SignupModal from './Signup-Modal';
+import LoginModal from './Signin-Modal';
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const pathname = usePathname();
-    const user = useSelector((state: { user: UserState }) => state.user.user);
     const isAuthenticated = useSelector((state: { user: UserState }) => state.user.isAuthenticated);
-
+    const [isSignupOpen, setIsSignupOpen] = useState(false);
+    const [isLoginOpen, setIsLoginOpen] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch();
 
-    // helper to check active link
     const isActive = (href: string) => pathname === href;
 
     const handleLogout = async () => {
@@ -29,223 +27,151 @@ export default function Header() {
         dispatch(logout());
         router.push('/');
     };
+    // Helper functions to switch between them
+    const openSignup = () => {
+        setIsLoginOpen(false);
+        setIsSignupOpen(true);
+    };
+
+    const openLogin = () => {
+        setIsSignupOpen(false);
+        setIsLoginOpen(true);
+    };
+    // Updated links based on the image
+    const guestLinks = [
+        { label: 'Home', href: '/' },
+        { label: 'How it works', href: '#how-it-works' },
+        { label: "FAQ's", href: '#faq' },
+        { label: 'Review', href: '#review' },
+    ];
+
+    const authLinks = [
+        { label: 'Games', href: '/game' },
+        { label: 'Profile', href: '/profile' },
+    ];
+
+    const currentLinks = isAuthenticated ? authLinks : guestLinks;
+
     return (
         <>
-            <header className="w-full fixed px-4 md:px-20 py-4 flex items-center justify-between border-b border-gray-200 bg-opacity-30 backdrop-blur-[2px] z-50">
-                {/* Logo */}
-                <div className="text-2xl font-bold text-[#B30738]">
-                    <Link href="/">AssumeChat</Link>
-                </div>
+            <header className="w-full fixed top-0 left-0 bg-white border-b border-gray-100 z-50">
+                <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
 
-                {/* Mobile Menu Button */}
-                <button
-                    className="md:hidden text-gray-700"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                    {isMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-                </button>
+                    {/* Logo: Circle icon + Text */}
+                    <Link href="/" className="flex items-center gap-2 group">
+                        <div className="w-8 h-8 bg-white border-2 border-[#B30738] rounded-full flex items-center justify-center text-[#B30738] font-bold italic text-sm transition-colors group-hover:bg-[#B30738] group-hover:text-white">
+                            A
+                        </div>
+                        <span className="text-2xl font-bold text-[#B30738]">AssumeChat</span>
+                    </Link>
 
-                {/* Desktop Nav */}
-                <nav className="hidden md:flex font-medium space-x-14 text-md">
-                    {
-                        isAuthenticated ? (
-                            [
-                                { label: 'Waiting Room', href: '/waitingRoom' },
-                                { label: 'Profile', href: '/ComingSoon' },
-                            ].map(({ label, href }) => (
-                                <Link
-                                    key={href}
-                                    href={href}
-                                    className={`
-                        py-2
-                        ${isActive(href)
-                                            ? 'text-[#B30738] border-b-2 border-[#B30738]'
-                                            : 'text-gray-700 hover:text-[#B30738]'}
-                        transition
-                      `}
-                                >
-                                    {label}
-                                </Link>
-                            ))
-                        ) : (
-                            [
-                                { label: 'How it works?', href: '/ComingSoon' },
-                                { label: 'Features', href: '/ComingSoon' },
-                                { label: 'About Us', href: '/ComingSoon' },
-                            ].map(({ label, href }) => (
-                                <Link
-                                    key={`${label}-${href}`}
-                                    href={href}
-                                    className={`
-                        py-2
-                        ${isActive(href)
-                                            ? 'text-[#B30738] border-b-2 border-[#B30738]'
-                                            : 'text-gray-700 hover:text-[#B30738]'}
-                        transition
-                      `}
-                                >
-                                    {label}
-                                </Link>
-                            ))
-                        )
-                    }
-                </nav>
-
-                {/* Desktop Buttons */}
-                <div className="hidden md:flex items-center space-x-3">
-                    {
-                        isAuthenticated ? (
+                    {/* Desktop Nav */}
+                    <nav className="hidden md:flex items-center space-x-12">
+                        {currentLinks.map(({ label, href }) => (
                             <Link
-                                href="/signin"
+                                key={href}
+                                href={href}
+                                className={`text-md font-medium transition-colors ${isActive(href)
+                                    ? 'text-[#B30738]'
+                                    : 'text-gray-400 hover:text-[#B30738]'
+                                    }`}
+                            >
+                                {label}
+                            </Link>
+                        ))}
+                    </nav>
+
+                    {/* Desktop Action Buttons */}
+                    <div className="hidden md:flex items-center gap-4">
+                        {isAuthenticated ? (
+                            <button
                                 onClick={handleLogout}
-                                className={`
-              px-6 md:px-12 py-2 border border-[#B30738] rounded-lg
-              ${isActive('/signin')
-                                        ? 'bg-gray-300 text-black'
-                                        : 'bg-white text-[#B30738] hover:bg-gray-100'}
-              transition
-            `}
+                                className="px-8 py-2.5 border border-[#B30738] text-[#B30738] rounded-xl font-bold hover:bg-red-50 transition-all"
                             >
                                 Log Out
-                            </Link>
-
+                            </button>
                         ) : (
                             <>
-                                <Link
-                                    href="/signin"
-                                    className={`
-              px-6 md:px-12 py-2 border border-[#B30738] rounded-lg
-              ${isActive('/signin')
-                                            ? 'bg-gray-300 text-black'
-                                            : 'bg-white text-[#B30738] hover:bg-gray-100'}
-              transition
-            `}
+                                <button
+                                    onClick={openLogin}
+                                    className="px-10 py-2.5 border border-[#B30738] text-[#B30738] rounded-xl font-bold"
                                 >
-                                    Sign In
-                                </Link>
-                                <Link
-                                    href="/signup"
-                                    className={`
-              px-6 md:px-12 py-2 rounded-lg
-              ${isActive('/signup')
-                                            ? 'bg-red-800 text-white'
-                                            : 'bg-[#B30738] text-white hover:bg-[#95052c]'}
-              transition
-            `}
+                                    Log In
+                                </button>
+                                <button
+                                    onClick={openSignup}
+                                    className="px-10 py-2.5 bg-[#B30738] text-white rounded-xl font-bold"
                                 >
                                     Sign Up
-                                </Link>
+                                </button>
                             </>
-                        )
-                    }
+                        )}
+                    </div>
+
+                    {/* Mobile Toggle */}
+                    <button
+                        className="md:hidden text-gray-700 p-2"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    >
+                        {isMenuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
+                    </button>
                 </div>
             </header>
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu Overlay */}
             {isMenuOpen && (
-                <div className="fixed top-16 left-0 right-0 bg-white bg-opacity-95 backdrop-blur-lg z-40 md:hidden border-b border-gray-200">
-                    <nav className="flex flex-col p-4 space-y-4">
-                        {
-                            isAuthenticated ? (
-
-                                [
-                                    { label: 'Waiting Room', href: '/waitingRoom' },
-                                    { label: 'Profile', href: '/ComingSoon' },
-                                ].map(({ label, href }) => (
-                                    <Link
-                                        key={href}
-                                        href={href}
-                                        className={`
-                              py-2 px-4
-                              ${isActive(href)
-                                                ? 'text-[#B30738] font-bold'
-                                                : 'text-gray-700 hover:text-[#B30738]'}
-                            `}
-                                        onClick={() => setIsMenuOpen(false)}
+                <div className="fixed inset-0 top-[72px] bg-white z-40 md:hidden animate-in fade-in slide-in-from-top-4">
+                    <nav className="flex flex-col p-6 space-y-6">
+                        {currentLinks.map(({ label, href }) => (
+                            <Link
+                                key={href}
+                                href={href}
+                                className={`text-xl font-semibold ${isActive(href) ? 'text-[#B30738]' : 'text-gray-600'
+                                    }`}
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                {label}
+                            </Link>
+                        ))}
+                        <div className="pt-6 flex flex-col gap-4 border-t border-gray-100">
+                            {isAuthenticated ? (
+                                <button
+                                    onClick={() => { handleLogout(); setIsMenuOpen(false); }}
+                                    className="w-full py-4 border border-[#B30738] text-[#B30738] rounded-xl font-bold"
+                                >
+                                    Log Out
+                                </button>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={openLogin}
+                                        className="px-10 py-2.5 border border-[#B30738] text-[#B30738] rounded-xl font-bold"
                                     >
-                                        {label}
-                                    </Link>
-                                ))
-
-                            ) :
-                                (
-
-                                    [
-                                        { label: 'How it works?', href: '/ComingSoon' },
-                                        { label: 'Features', href: '/ComingSoon' },
-                                        { label: 'About Us', href: '/ComingSoon' },
-                                    ].map(({ label, href }) => (
-                                        <Link
-                                            key={`${label}-${href}`}
-                                            href={href}
-                                            className={`
-                                  py-2 px-4
-                                  ${isActive(href)
-                                                    ? 'text-[#B30738] font-bold'
-                                                    : 'text-gray-700 hover:text-[#B30738]'}
-                                `}
-                                            onClick={() => setIsMenuOpen(false)}
-                                        >
-                                            {label}
-                                        </Link>
-                                    ))
-
-                                )
-
-                        }
-
-                        <div className="flex flex-col space-y-3 pt-2">
-                            {
-                                isAuthenticated ? (
-                                    <Link
-                                        href="/"
-                                        className={`
-                      px-6 py-2 border border-[#B30738] rounded-lg text-center
-                      ${isActive('/signin')
-                                                ? 'bg-gray-300 text-black'
-                                                : 'bg-white text-[#B30738] hover:bg-gray-100'}
-                    `}
-                                        onClick={() => {
-                                            handleLogout();
-                                            setIsMenuOpen(false);
-                                        }}
+                                        Log In
+                                    </button>
+                                    <button
+                                        onClick={openSignup}
+                                        className="px-10 py-2.5 bg-[#B30738] text-white rounded-xl font-bold"
                                     >
-                                        Log Out
-                                    </Link>
-                                ) : (
-                                    <>
-                                        <Link
-                                            href="/signin"
-                                            className={`
-                  px-6 py-2 border border-[#B30738] rounded-lg text-center
-                  ${isActive('/signin')
-                                                    ? 'bg-gray-300 text-black'
-                                                    : 'bg-white text-[#B30738] hover:bg-gray-100'}
-                `}
-                                            onClick={() => setIsMenuOpen(false)}
-                                        >
-                                            Sign In
-                                        </Link>
-                                        <Link
-                                            href="/signup"
-                                            className={`
-                  px-6 py-2 rounded-lg text-center
-                  ${isActive('/signup')
-                                                    ? 'bg-red-800 text-white'
-                                                    : 'bg-[#B30738] text-white hover:bg-[#95052c]'}
-                `}
-                                            onClick={() => setIsMenuOpen(false)}
-                                        >
-                                            Sign Up
-                                        </Link>
-                                    </>
-                                )
-                            }
+                                        Sign Up
+                                    </button>
+                                </>
+                            )}
                         </div>
-                    </nav >
-                </div >
-            )
-            }
+                    </nav>
+                </div>
+            )}
+            {/* Spacer to prevent content from going under the fixed header */}
+            <div className="h-[72px]"></div>
+            <SignupModal
+                isOpen={isSignupOpen}
+                onClose={() => setIsSignupOpen(false)}
+            />
+            <LoginModal
+                isOpen={isLoginOpen}
+                onClose={() => setIsLoginOpen(false)}
+                onSwitchToSignup={openSignup}
+            />
         </>
     );
 }

@@ -9,17 +9,18 @@ import privactcard from "@/Data/Privary"
 import TestimonialsSection from '@/components/Home/Testimonials';
 import FnQsection from '@/components/Home/FnQs';
 import Universities from '@/components/Home/Universities';
+import HowItWorks from '@/components/Home/what-is-trust-game';
+import CommunityStories from '@/components/Home/OurCommunitySection';
 export default function LandingPage() {
 
+  
 
   return (
     <>
       <HeroSection />
-      <HowItWorksSection title='How It Works?' description='Real people. Real talk. Just you, the moment and the conversations that count.' Data={cards} />
-      <ExperienceSection />
-      <HowItWorksSection title='Your Safety & Privacy is Our Priority' description='Advanced security measures to ensure safe and private interactions' Data={privactcard} />
+      <HowItWorks/>
+      <CommunityStories/>
       <TestimonialsSection/>
-      <Universities/>
       <FnQsection/>
     </>
   );

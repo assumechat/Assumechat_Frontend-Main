@@ -18,7 +18,6 @@ export default function Layout({
   
     return (
         <>
-            <Header />
             <Toaster richColors />
             {children}
             <FooterSection />
