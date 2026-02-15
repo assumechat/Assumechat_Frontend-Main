@@ -120,11 +120,10 @@ const Header = () => {
               <Link
                 key={`${label}-${href}`}
                 href={href}
-                className={`py-2 ${
-                  isActive(href)
-                    ? "text-[#B30738] border-b-2 border-[#B30738]"
-                    : "text-gray-700 hover:text-[#B30738]"
-                } transition`}
+                className={`py-2 ${isActive(href)
+                  ? "text-[#B30738] border-b-2 border-[#B30738]"
+                  : "text-gray-700 hover:text-[#B30738]"
+                  } transition`}
               >
                 {label}
               </Link>
@@ -227,16 +226,15 @@ const Header = () => {
                     <Link
                       key={tab.id}
                       href={`/waitingRoom/tabs/${tab.id}`}
-                      className={`flex items-center p-3 rounded-lg transition-colors ${
-                        currentTab === tab.id
-                          ? "bg-[#B30738] text-white"
-                          : "hover:bg-gray-100 text-gray-700"
-                      }`}
+                      onClick={onClose}
+                      className={`flex items-center p-3 rounded-lg transition-colors ${currentTab === tab.id
+                        ? "bg-[#B30738] text-white"
+                        : "hover:bg-gray-100 text-gray-700"
+                        }`}
                     >
                       <div
-                        className={`w-1 h-6 rounded-full  ${
-                          currentTab === tab.id ? "bg-white" : "bg-transparent"
-                        }`}
+                        className={`w-1 h-6 rounded-full  ${currentTab === tab.id ? "bg-white" : "bg-transparent"
+                          }`}
                       />
                       <div className="bg-[#B30738] mr-3 p-2 flex justify-center rounded-lg items-center">
                         <tab.icon
@@ -255,21 +253,21 @@ const Header = () => {
                     {currentTab === "reels"
                       ? "Reels"
                       : currentTab === "minigames"
-                      ? "Games"
-                      : currentTab === "unispace"
-                      ? "Uni Space"
-                      : "Chats"}
+                        ? "Games"
+                        : currentTab === "unispace"
+                          ? "Uni Space"
+                          : "Chats"}
                   </h3>
                   <div className="space-y-1 py-3 px-1 mr-6 ml-3">
                     {getSubTabs().map((tab) => (
                       <Link
                         key={tab.id}
                         href={"/ComingSoon"}
-                        className={`flex items-center p-3 rounded-lg text-sm transition-colors ${
-                          pathname.includes(tab.id)
-                            ? "bg-[#B30738]/10 text-[#B30738]"
-                            : "hover:bg-gray-100 text-gray-700"
-                        }`}
+                        onClick={onClose}
+                        className={`flex items-center p-3 rounded-lg text-sm transition-colors ${pathname.includes(tab.id)
+                          ? "bg-[#B30738]/10 text-[#B30738]"
+                          : "hover:bg-gray-100 text-gray-700"
+                          }`}
                       >
                         <div className="bg-[#B30738] mr-3 p-2 flex justify-center rounded-lg items-center">
                           <tab.icon
@@ -342,11 +340,10 @@ const Header = () => {
                       href={href}
                       className={`
                                   py-2 px-4
-                                  ${
-                                    isActive(href)
-                                      ? "text-[#B30738] font-bold"
-                                      : "text-gray-700 hover:text-[#B30738]"
-                                  }
+                                  ${isActive(href)
+                          ? "text-[#B30738] font-bold"
+                          : "text-gray-700 hover:text-[#B30738]"
+                        }
                                 `}
                       onClick={() => setIsMenuOpen(false)}
                     >
@@ -360,11 +357,10 @@ const Header = () => {
                       href="/"
                       className={`
                       px-6 py-2 border border-[#B30738] rounded-lg text-center
-                      ${
-                        isActive("/signin")
+                      ${isActive("/signin")
                           ? "bg-gray-300 text-black"
                           : "bg-white text-[#B30738] hover:bg-gray-100"
-                      }
+                        }
                     `}
                       onClick={() => {
                         handleLogout();
@@ -379,11 +375,10 @@ const Header = () => {
                         href="/signin"
                         className={`
                   px-6 py-2 border border-[#B30738] rounded-lg text-center
-                  ${
-                    isActive("/signin")
-                      ? "bg-gray-300 text-black"
-                      : "bg-white text-[#B30738] hover:bg-gray-100"
-                  }
+                  ${isActive("/signin")
+                            ? "bg-gray-300 text-black"
+                            : "bg-white text-[#B30738] hover:bg-gray-100"
+                          }
                 `}
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -393,11 +388,10 @@ const Header = () => {
                         href="/signup"
                         className={`
                   px-6 py-2 rounded-lg text-center
-                  ${
-                    isActive("/signup")
-                      ? "bg-red-800 text-white"
-                      : "bg-[#B30738] text-white hover:bg-[#95052c]"
-                  }
+                  ${isActive("/signup")
+                            ? "bg-red-800 text-white"
+                            : "bg-[#B30738] text-white hover:bg-[#95052c]"
+                          }
                 `}
                         onClick={() => setIsMenuOpen(false)}
                       >
@@ -528,16 +522,14 @@ const Sidebar = ({ Children }: { Children: ReactNode }) => {
               <Link
                 key={tab.id}
                 href={`/waitingRoom/tabs/${tab.id}`}
-                className={`flex items-center p-3 rounded-lg transition-colors ${
-                  currentTab === tab.id
-                    ? "bg-[#B30738] text-white"
-                    : "hover:bg-gray-100 text-gray-700"
-                }`}
+                className={`flex items-center p-3 rounded-lg transition-colors ${currentTab === tab.id
+                  ? "bg-[#B30738] text-white"
+                  : "hover:bg-gray-100 text-gray-700"
+                  }`}
               >
                 <div
-                  className={`w-1 h-6 rounded-full mr-3 ${
-                    currentTab === tab.id ? "bg-white" : "bg-transparent"
-                  }`}
+                  className={`w-1 h-6 rounded-full mr-3 ${currentTab === tab.id ? "bg-white" : "bg-transparent"
+                    }`}
                 />
                 <div className="bg-[#B30738] mr-3 p-2 flex justify-center rounded-lg items-center">
                   <tab.icon
@@ -558,21 +550,20 @@ const Sidebar = ({ Children }: { Children: ReactNode }) => {
               {currentTab === "reels"
                 ? "Reels"
                 : currentTab === "minigames"
-                ? "Games"
-                : currentTab === "unispace"
-                ? "Uni Space"
-                : "Chats"}
+                  ? "Games"
+                  : currentTab === "unispace"
+                    ? "Uni Space"
+                    : "Chats"}
             </h3>
             <div className="space-y-1">
               {getSubTabs().map((tab) => (
                 <Link
                   key={tab.id}
                   href={"/ComingSoon"}
-                  className={`flex items-center p-3 rounded-lg text-sm transition-colors ${
-                    pathname.includes(tab.id)
-                      ? "bg-[#B30738]/10 text-[#B30738]"
-                      : "hover:bg-gray-100 text-gray-700"
-                  }`}
+                  className={`flex items-center p-3 rounded-lg text-sm transition-colors ${pathname.includes(tab.id)
+                    ? "bg-[#B30738]/10 text-[#B30738]"
+                    : "hover:bg-gray-100 text-gray-700"
+                    }`}
                 >
                   <div className="bg-[#B30738] mr-3 p-2 flex justify-center rounded-lg items-center">
                     <tab.icon

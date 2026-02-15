@@ -63,7 +63,10 @@ const ChatSystem = () => {
 
     function onPeerHandshake(payload: { userId: string; userName?: string }) {
       setPeerInfo(null); // Clear peer info
-      toast(`${payload.userName ?? "Peer"} has joined the room!`);
+      toast(`${payload.userName ?? "Peer"} has joined the room!`, {
+        duration: 3000
+      });
+
       setPeerInfo(payload); // ✅ This updates peerInfo
       setShowMatchedUserModel(true); // ✅ Immediately show modal
       setIsMatching(false);
@@ -112,7 +115,9 @@ const ChatSystem = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      toast.success("Feedback sent, thank you!");
+      toast.success("Feedback sent, thank you!", {
+        duration: 3000
+      });
       setFeedbackText("");
       setRating(3);
       setshowFeedbackModal(false);
@@ -332,7 +337,7 @@ const ChatSystem = () => {
   return (
     <div className="flex flex-col md:mt-20 mt-40 h-full rounded-2xl border-4 bg-gray-200">
       {/* Top Bar - Sticky */}
-      <div className="sticky top-22 md:top-0 z-10 m-4 p-4 bg-white rounded-3xl flex items-center justify-between border-b border-gray-300">
+      <div className="sticky top-22 md:top-0  m-4 p-4 bg-white rounded-3xl flex items-center justify-between border-b border-gray-300">
         <div className="flex items-center space-x-3">
           {peerInfo && (
             <>
